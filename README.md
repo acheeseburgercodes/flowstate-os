@@ -2,7 +2,7 @@
 
 Your workspace, shaped by your intent.
 
-Implementation is in progress. Workspace CRUD, the web portal, and read-only Windows enumeration are implemented. Switch, privileged OS actions, snapshots, and OAuth are not yet implemented. See [the implementation checklist](docs/implementation.md).
+Implementation is in progress. Workspace CRUD, the web portal, Windows enumeration, selected-window snapshot capture, and bounded restore are implemented. Switch, application launching, and OAuth are not yet implemented. See [the implementation checklist](docs/implementation.md).
 
 ## Architecture
 
@@ -76,8 +76,9 @@ The test creates a workspace through the UI, edits resources, selects a graph no
 
 - Intent text creates a named draft; there is no connected model or intent planner.
 - The resource graph represents configuration, not live OS window positions.
-- Native discovery reads titles, process IDs, handles, bounds, and minimized/maximized state. Executable paths, monitor metadata, native events, window mutation, and launching are not implemented.
-- Time Machine, collaboration, integrations, and activity routes explain their unavailable state. They do not simulate results.
+- Native discovery reads titles, process IDs, process start time, handles, bounds, and minimized/maximized state. Executable paths, monitor metadata, native events, and launching are not implemented.
+- Time Machine captures selected windows into local SQLite. Preview and restore support normal windows whose handle, process ID, process start time, and title still match. Native approval is required, and a pre-restore snapshot enables a separately approved rollback attempt. Bounds are verified after each operation. Closed, renamed, elevated, inaccessible, minimized, and maximized windows are not restored. Display scaling changes and full monitor compatibility are not supported yet.
+- Collaboration, integrations, and activity routes explain their unavailable state. They do not simulate results.
 - Authentication is a single-device development token held in UI memory. Multi-user identity, OS credential storage, granular permissions, audit persistence, and production deployment are pending.
 - Tailwind, shadcn/Radix, and Motion are not yet integrated; styling currently uses shared CSS tokens. The UI follows the supplied palette and the unslop craft guidance.
 

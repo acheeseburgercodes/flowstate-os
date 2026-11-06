@@ -17,7 +17,7 @@
 - [x] Add workspace persistence, migration, development token authentication, workspace CRUD. Production device identity remains pending.
 - [x] Build Tauri shell and read-only Windows enumeration.
 - [ ] Add native approval, registered applications, validated layouts.
-- [ ] Capture snapshots and verify restore with partial failure results.
+- [x] Capture selected windows locally and restore matching normal windows with native confirmation, rollback snapshot, and per-window results. Full application/session restoration remains pending.
 - [ ] Connect actual Switch instance and Codex runtime.
 - [ ] Exercise two-human room contribution and local execution workflow.
 - [ ] Add browser companion and independently testable service connectors.
@@ -34,12 +34,12 @@ Switch connectivity requires a running instance, a registered agent, and an auth
 - Seven backend tests pass: portable schema rejection, authorization, origin/host checks, CRUD, and persisted state across app instances.
 - Three frontend validation tests pass.
 - One Playwright workflow passes against the live API, including graph selection, save/reopen, and deletion.
-- One native Win32 enumeration test passes on this Windows host. This does not verify positioning or launching.
+- Four native tests pass: Win32 enumeration, actual move-and-restore of a disposable test-owned window, SQLite persistence/deletion, and invalid empty snapshot rejection. Native approval dialog and full interactive restore workflow still need UI verification.
 - Frontend production build and Rust desktop debug build pass.
 - Tauri packaged debug build with embedded frontend passes (`tauri build --debug --no-bundle`); executable is under `apps/desktop/src-tauri/target/debug/flowstate-desktop.exe`. Installer and interactive desktop UI verification remain pending.
 - SQLite migration applied successfully; Ruff check passes.
 - Screenshot review completed for home and workspace pages.
-- Switch workflow, PostgreSQL, OAuth, window mutation, and snapshot restore have not been verified or implemented.
+- Switch workflow, PostgreSQL, OAuth, full session restoration, and application launching remain outstanding.
 
 ## Official research sources
 

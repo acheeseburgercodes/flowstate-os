@@ -14,6 +14,30 @@
   --error: #c77d83;
   --radius: 8px;
 }
+.snapshot-timeline {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 24px 0 40px;
+}
+.snapshot-timeline button {
+  min-width: 240px;
+  text-align: left;
+}
+.snapshot-timeline button[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+.snapshot-capture {
+  display: grid;
+  gap: 16px;
+  max-width: 480px;
+  margin: 24px 0;
+}
+.window-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
 * {
   box-sizing: border-box;
 }

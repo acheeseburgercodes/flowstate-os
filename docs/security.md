@@ -4,7 +4,7 @@ All workspace endpoints require a configured random bearer token. The API refuse
 
 The development API binds to loopback, validates Host headers, and rejects unknown Origin headers. This is a single-user development configuration; do not expose it on a public interface. The Vite proxy is also bound to loopback.
 
-The Tauri shell exposes one read-only discovery command. There is no renderer shell execution, generic filesystem API, or remote privileged action endpoint. Discovery starts with an explicit UI gesture and stops on navigation or revocation. Native data remains in frontend session memory and is not sent to the backend. Window discovery is not a proof of authorization to move those windows.
+The Tauri shell exposes discovery and specific snapshot commands. There is no renderer shell execution, generic filesystem API, or remote privileged action endpoint. Discovery starts with an explicit UI gesture and stops on navigation or revocation. Selected snapshots are stored unencrypted in the app-local SQLite database, never sent to the backend. Restore loads stored bounds by snapshot ID and requires a native confirmation dialog, defaulting to No. It checks window handle, PID, process creation time, and title, rejects elevated processes and unsupported states, and verifies actual bounds. Only one restore can run at a time. Identity checks cannot eliminate every race with a concurrently closing or recycled native window.
 
 Shared resources accept HTTP(S) URLs and reject embedded username/password credentials. This does not detect secrets in URL queries: users must not paste tokenized private links into shared manifests. No manifests are published to a room in the current version.
 

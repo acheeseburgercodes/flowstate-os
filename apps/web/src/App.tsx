@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { apiBase, listWorkspaces, saveWorkspace, useConnection } from "./api";
 import { DesktopPage } from "./DesktopPage";
+import { TimelinePage } from "./TimelinePage";
 import { isTauri } from "@tauri-apps/api/core";
 const WorkspacePage = lazy(() =>
   import("./WorkspacePage").then((module) => ({
@@ -83,15 +84,7 @@ export function App() {
               <Route path="/workspace/:id" element={<WorkspacePage />} />
               <Route path="/settings" element={<Connection />} />
               <Route path="/desktop" element={<DesktopPage />} />
-              <Route
-                path="/timeline"
-                element={
-                  <Empty
-                    title="Workspace Time Machine"
-                    text="Native snapshot capture requires the desktop companion. No snapshots have been captured."
-                  />
-                }
-              />
+              <Route path="/timeline" element={<TimelinePage />} />
               <Route
                 path="/collaboration"
                 element={
