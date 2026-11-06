@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FlowState OS",
+  "version": "0.1.0",
+  "identifier": "dev.flowstate.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @flowstate/web dev",
+    "beforeBuildCommand": "pnpm --filter @flowstate/web build",
+    "devUrl": "http://127.0.0.1:5173",
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "FlowState OS",
+        "width": 1280,
+        "height": 850,
+        "minWidth": 800,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost http://127.0.0.1:8000; script-src 'self'"
+    }
+  },
+  "bundle": { "active": false }
+}

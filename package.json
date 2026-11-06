@@ -1,0 +1,1 @@
+{"name":"flowstate-os","private":true,"version":"0.1.0","packageManager":"pnpm@11.25.0","scripts":{"dev":"pnpm --filter @flowstate/web dev","build":"pnpm --filter @flowstate/web build","test":"pnpm --filter @flowstate/web test"},"devDependencies":{"prettier":"^3.9.10"}}
