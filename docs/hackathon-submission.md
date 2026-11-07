@@ -10,9 +10,13 @@ Repository: https://github.com/acheeseburgercodes/flowstate-os
 
 ## Why Switch is central
 
-Switch is the collaboration plane, not a decorative integration. The demo uses a real Mattermost-backed Switch room, a dedicated always-on FlowState relay, and a separate Codex agent. FlowState discovers the server's Agent Bridge operations at runtime, claims only its configured room, deduplicates replayed messages, preserves history-gap state, and refuses automatic write retries when publication outcome is uncertain.
+Switch routes the team conversation into FlowState through a dedicated relay. The local setup has a real Mattermost room and a separate registered Codex identity. FlowState discovers the server's operations, filters messages to configured rooms, deduplicates replayed messages, and keeps track of missing history. Plans and reports go back to their original room. If delivery is uncertain, the app does not automatically resend.
 
-## Demonstrated flow
+Mattermost and Discord belong in this single project submission. Both use Switch rooms. Mattermost connectivity is verified; the Discord adapter path is implemented, but the Discord bot bridge and live delivery remain unverified.
+
+## Demo flow to record
+
+This is the intended walkthrough, not a claim that the complete live demo has passed. Record only steps you have actually completed, including a real agent response.
 
 1. Two people and Codex contribute in the Switch room.
 2. FlowState receives addressed room messages exactly once and treats them as inert proposals.
@@ -27,7 +31,7 @@ Switch is the collaboration plane, not a decorative integration. The demo uses a
 - Windows 11, Docker Desktop with WSL 2, Node 22+, pnpm 11+, Python 3.12+, uv, Rust/MSVC, and WebView2.
 - Follow `docs/switch-setup.md`, then use the commands in the root README.
 - Verified locally on 2026-11-07 with Switch Core 0.31.0, Switch-managed Mattermost, 57 discovered operations, acknowledged room coverage, and no history gap.
-- Current automated evidence: production web build, 16 API tests, and 3 frontend unit tests pass. Native limitations are documented rather than simulated.
+- Current automated evidence: production web build and 17 API tests pass. Earlier verification passed 3 frontend and 10 native tests. Native limitations are documented.
 
 ## Three-minute demo script
 

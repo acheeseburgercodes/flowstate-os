@@ -1,8 +1,10 @@
 # FlowState OS
 
-Your workspace, shaped by your intent.
+Team chat is where work gets discussed. Your desktop is where you open the project, find the right tabs, and put everything back in place. FlowState OS connects those two parts of the job.
 
-FlowState OS turns a shared Switch conversation into a portable workspace plan, requires local approval before touching the operating system, and reports privacy-limited results back to the room. Workspace CRUD, the web portal, Windows discovery, snapshots and bounded restore, live Switch connectivity, revision-bound shared-plan approval, trusted application launches, and locally approved URL execution are implemented.
+It takes contributions from a Switch room and lets you assemble a workspace plan. You review the saved version, approve its actions on your Windows machine, and choose whether to send the result counts back to the room. It also saves window arrangements so you can restore matching windows later.
+
+Built for the WeMakeDevs Flip the Switch hackathon with React, FastAPI, Tauri, and Switch.
 
 ## Architecture
 
@@ -11,20 +13,25 @@ flowchart LR
   Human --> Chat[Discord or Mattermost]
   Chat <--> Switch[Switch room]
   Switch <--> Agent[Codex agent]
-  Agent --> API[FlowState FastAPI]
+  Switch <--> Relay[FlowState relay]
+  Relay <--> API[FlowState FastAPI]
   API --> Approval[Local approval]
   Approval --> Desktop[Tauri companion]
   Desktop --> Windows[Windows capabilities]
   Desktop --> Results[Verified results]
   Results --> API
-  API --> Agent
+  API --> Relay
 ```
 
-Switch owns rooms, message routing, and human-agent collaboration. FlowState owns portable manifests, workspace state, local approval, and constrained OS execution. Remote messages must never invoke OS actions directly.
+Switch handles the rooms and routes messages between people and agents. The separate FlowState relay brings room contributions into the app. FlowState handles saved plans and local approval. Reading a chat message does not grant permission to control your desktop.
 
 ## Hackathon status
 
-The core hackathon path is runnable. On 2026-11-07 it was connected to Switch Core 0.31.0 through a real Mattermost-backed room with a dedicated always-on FlowState relay and a separately registered Codex agent. The relay authenticated, discovered 57 operations, claimed the configured room, and reached `connected` without a history gap. See the [submission brief](docs/hackathon-submission.md), [demo runbook](docs/demo.md), and [Switch setup](docs/switch-setup.md).
+On November 7, the relay connected to Switch Core 0.31.0 and a real Mattermost room. Authentication, discovery of 57 operations, and WebSocket room coverage passed. A separate Codex identity is registered; a complete conversation with its running agent still needs to be demonstrated.
+
+Mattermost and Discord can be used in the same build through separate Switch rooms. The inbox can filter by room, and plans publish results back to their own room. Mattermost is connected on the development machine. Discord support is implemented and covered by adapter tests, but its bot bridge has not been configured or tested live here.
+
+The web production build and 17 backend tests pass. Earlier checks also passed 3 frontend and 10 native tests; one optional launch test is excluded because Windows policy blocked its fixture. The full chat-to-desktop demo and recording are still pending. See the [submission brief](docs/hackathon-submission.md), [demo runbook](docs/demo.md), and [Switch setup](docs/switch-setup.md).
 
 ## Run on Windows
 
@@ -83,6 +90,5 @@ The test creates a workspace through the UI, edits resources, selects a graph no
 - Local windows offers focus, split, coding, research, presentation, and triple layouts on a selected monitor, with preview, native confirmation, rollback capture, and bounds verification. Select normal windows manually after launching applications.
 - Activity shows local plan execution results. External OAuth connectors, browser extension, and FlowBar are not implemented.
 - Authentication is a single-device development token held in UI memory. Multi-user identity, OS credential storage, granular permissions, audit persistence, and production deployment are pending.
-- Tailwind, shadcn/Radix, and Motion are not yet integrated; styling currently uses shared CSS tokens. The UI follows the supplied palette and the unslop craft guidance.
 
 See [security notes](docs/security.md) for the current trust boundaries.
