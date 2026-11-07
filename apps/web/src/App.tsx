@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, type FormEvent } from "react";
-import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, NavLink, Route, Routes, useNavigate, useLocation } from "react-router-dom";
+import { Reveal } from "./Reveal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
@@ -35,6 +36,7 @@ const navigation = [
   ["/settings", "Settings", Settings],
 ] as const;
 export function App() {
+  const location = useLocation();
   const health = useQuery({
     queryKey: ["health"],
     queryFn: async () => {
@@ -83,7 +85,7 @@ export function App() {
             </span>
           </span>
         </header>
-        <main>
+        <main key={location.pathname} className="page-enter">
           <Suspense fallback={<p>Loading workspace…</p>}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -139,7 +141,7 @@ function Home() {
   });
   return (
     <>
-      <section className="hero">
+      <Reveal><section className="hero">
         <p className="eyebrow">The command surface</p>
         <h1>
           What are we
@@ -177,7 +179,7 @@ function Home() {
           Creates a saved workspace draft · No AI model connected
         </p>
         {create.error && <p role="alert">{create.error.message}</p>}
-      </section>
+      </section></Reveal>
       <section>
         <div className="section-heading">
           <h2>Resume</h2>

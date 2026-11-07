@@ -8,6 +8,21 @@ Built for the WeMakeDevs Flip the Switch hackathon with React, FastAPI, Tauri, a
 
 ## Architecture
 
+## What to look for in the demo
+
+The judging criteria are Switch usage (30%), technical execution (25%), creativity and impact (25%), and presentation (20%). Here is the evidence this project offers for each:
+
+| Criterion | What FlowState does | Evidence and limits |
+| --- | --- | --- |
+| Use of Switch | Receives team contributions through a dedicated relay and publishes approved results to the original room. | Live Mattermost room coverage was verified. Without Switch, this collaboration path stops; local workspace tools still work. |
+| Technical execution | React UI, FastAPI persistence, and a Tauri Windows companion with approval gates. | Reproduction commands below; web build and 17 API tests pass. Discord live setup and a full interactive demo remain pending. |
+| Creativity and impact | Takes a shared workspace plan from team chat to each person's locally approved setup, with saved window arrangements. | Intended to reduce repeated setup during shared coding or research sessions; no measured productivity claim. |
+| Presentation | Shows where messages, approvals, local actions, and results belong. | The architecture and recording script explain the boundaries. The generated captioned UI tour is not proof of an end-to-end agent run. |
+
+Motion includes page slides, viewport fade-ins, and button feedback, with reduced-motion support. The reveal component is adapted from Klyv UI through 21st.dev; see [third-party notices](THIRD_PARTY_NOTICES.md).
+
+### Data flow
+
 ```mermaid
 flowchart LR
   Human --> Chat[Discord or Mattermost]
