@@ -42,7 +42,7 @@ Switch handles the rooms and routes messages between people and agents. The sepa
 
 ## Hackathon status
 
-The Operations page adds a browser-local delegation planner: create specialist profiles, assign tasks, auto-route by explicit skill and current queue size, pause routing to a profile, and inspect the reason for an assignment. Plans persist in this browser. These profiles do not launch AI processes or dispatch to Switch agents yet. Marking an assignment reviewed is a human planning action, not proof of agent execution.
+The Operations page lets you create specialist profiles, assign tasks, auto-route by explicit skill and current queue size, and inspect assignment reasons. Assignments persist in this browser. After connecting in Settings, **Run assigned agent** submits an authenticated Codex job to the API host. Jobs persist in the database, run with a read-only sandbox and a 180-second timeout, and expose their actual answer or failure. Two jobs can run concurrently. A live task returned its expected answer on November 7. Marking an assignment reviewed remains a human planning action, separate from execution. This runner is not yet integrated with Switch's agent controller or deployed to a remote server.
 
 The interface includes TempVault-inspired warm dark and cream/violet light themes, an animated theme transition, task-entry animations, and scroll reveals. Reduced-motion preferences disable movement.
 

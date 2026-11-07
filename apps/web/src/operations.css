@@ -14,4 +14,18 @@ input,select,textarea{background:var(--surface);color:var(--text)}
 @media(max-width:1250px){.ops-grid{grid-template-columns:220px minmax(280px,1fr)}.inspector{grid-column:1/-1}.ops-heading h1{font-size:28px}}@media(max-width:760px){.ops-grid{grid-template-columns:1fr}.ops-heading{display:block}.ops-metrics{grid-template-columns:repeat(2,1fr)}.dispatch-map{gap:12px;padding:12px}.dispatch-map small{display:none}.dispatch-map b{font-size:12px}.map-router{padding:12px}.routing-log>div:not(.panel-title){grid-template-columns:1fr}}
 .ops-metrics strong.policy{font-family:inherit;font-size:16px;font-weight:500;line-height:1.5}
 .shell header button.theme-toggle{background:var(--raised);color:var(--text);border-color:var(--line)}
+:root[data-theme="dark"]{--accent:#b8a0ff}
+.shell{height:100dvh;min-height:0;overflow:hidden}
+.shell>aside{height:100dvh;overflow-y:auto;padding:24px 16px}
+.shell>aside .brand{margin-bottom:32px}
+.shell>aside .device{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.content{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.content>header{flex:0 0 64px}
+.content>main{overflow-y:auto;overscroll-behavior:contain;min-height:0;max-width:none;width:100%;flex:1;margin:0;padding:28px 32px;scroll-behavior:smooth}
+.content>footer{flex:0 0 auto}
+.ops-heading h1{font-size:30px}.ops-metrics{margin:20px 0}.ops-metrics>div{padding:16px}.dispatch-map{padding:16px;margin-bottom:16px}
+nav a.active{color:var(--accent);box-shadow:inset 2px 0 var(--accent)}
+.ops button:not(:disabled):hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--raised))}
+@media(max-width:760px){.shell{height:auto;overflow:visible}.shell>aside{height:auto;overflow:visible;width:100%}.shell>aside .device{display:none}.content{height:auto;overflow:visible}.content>main{overflow:visible;padding:20px}.content>header{flex-wrap:wrap;height:auto;min-height:64px;gap:12px;padding:12px}.status{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.content>main{scroll-behavior:auto}}
 @media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root),.ops .task-row,.inspector{animation:none!important}}

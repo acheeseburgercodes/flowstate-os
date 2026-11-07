@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { GitBranch, Plus, ArrowRight, Bot, Check, Pause, Play } from 'lucide-react';
 import { Reveal } from './Reveal';
 import './operations.css';
+import { request, useConnection } from './api';
+import { useQuery } from '@tanstack/react-query';
 type Agent = { id: string; name: string; skill: string; enabled: boolean };
-type Task = { id: string; title: string; skill: string; agent: string; reason: string; done: boolean };
+type Task = { id: string; title: string; skill: string; agent: string; reason: string; done: boolean; job?: string };
 const initial: Agent[] = [
   { id: 'research', name: 'Research specialist', skill: 'Research', enabled: true },
   { id: 'build', name: 'Implementation specialist', skill: 'Code', enabled: true },
@@ -40,6 +42,16 @@ export function Operations() {
     setTasks([...tasks, task]); setSelected(task.id); setTitle('');
   };
   const current = tasks.find(t => t.id === selected);
+  const token = useConnection(state => state.token);
+  const [launching, setLaunching] = useState(false);
+  const job = useQuery({queryKey:['agent-job',current?.job,token],enabled:!!current?.job&&!!token,queryFn:()=>request(`/agents/jobs/${current!.job}`) as Promise<{status:string;result:string}>,refetchInterval:2000});
+  const execute = async () => {
+    if (!current || !current.agent) return;
+    const id=current.id;
+    setLaunching(true);setError('');
+    try { const result=await request('/agents/jobs','POST',{specialist:agents.find(a=>a.id===current.agent)?.name,prompt:current.title}) as {id:string};setTasks(previous=>previous.map(t=>t.id===id?{...t,job:result.id}:t)); }
+    catch(e){setError(e instanceof Error?e.message:'Execution failed');}finally{setLaunching(false);}
+  };
   const update = (patch: Partial<Task>) => setTasks(tasks.map(t => t.id === selected ? { ...t, ...patch } : t));
   return <section className="ops">
     <div className="ops-heading"><div><p>Workspace / Dispatch</p><h1>Give every task a direction.</h1><p>Plan the work. Choose the specialist. Keep the decision visible.</p></div><span className="local-badge">Local assignment planner</span></div>
@@ -53,6 +65,7 @@ export function Operations() {
       <div className="task-list">{tasks.length===0?<div className="queue-empty"><GitBranch size={32}/><h3>Your next handoff starts here</h3><p>Add a task and choose its skill. The router explains who gets it and why.</p></div>:tasks.map((t,i)=><button key={t.id} className={`task-row ${selected===t.id?'selected':''}`} onClick={()=>setSelected(t.id)}><span className="task-number">{String(i+1).padStart(2,'0')}</span><div><b>{t.title}</b><small>{agents.find(a=>a.id===t.agent)?.name||'Unassigned'} · {t.skill}</small></div><span className={`task-state ${t.done?'complete':''}`}>{t.done?'Reviewed':t.agent?'Assigned':'Queued'}</span></button>)}</div>
     </section><section className="ops-panel inspector" key={selected}><div className="panel-title"><h2>Assignment detail</h2><GitBranch size={16}/></div>{current?<><span className="local-badge">{current.skill}</span><h3>{current.title}</h3><div className="routing-reason"><small>Why this route</small><p>{current.reason}</p></div><label>Assign to<select value={current.agent} onChange={e=>update({agent:e.target.value,reason:'Manually assigned by the local user',done:false})}><option value="">Unassigned</option>{agents.filter(a=>a.enabled).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></label><button onClick={()=>update(route(current,tasks.filter(t=>t.id!==current.id)))}>Re-evaluate route <GitBranch size={14}/></button><button disabled={!current.agent||current.done} onClick={()=>update({done:true})}><Check size={14}/> Mark assignment reviewed</button><p className="ops-note">Reviewed means you accepted the assignment. It does not mean an AI agent executed the task.</p></>:<div className="queue-empty"><Bot size={32}/><p>Select a task to inspect its route and change its owner.</p></div>}</section></div>
     <Reveal><section className="ops-panel routing-log"><div className="panel-title"><h2>Routing decisions</h2><span>Explainable by design</span></div>{tasks.length?tasks.map(t=><div key={t.id}><span>{t.skill}</span><b>{t.title}</b><p>{t.reason}</p></div>):<p>Decisions appear as you add or reassign tasks.</p>}</section></Reveal>
+    {current&&<section className="ops-panel routing-log"><div className="panel-title"><h2>Agent execution</h2><span>Codex · read-only analysis</span></div><p>Runs the selected task on the API host using its signed-in Codex runtime. This does not perform desktop actions or send Switch messages.</p><button disabled={!token||!current.agent||!!current.job||launching} onClick={execute}>{launching?'Submitting…':'Run assigned agent'}</button>{!token&&<p>Connect your device token in Settings to run agents.</p>}{job.data&&<><p role="status">{job.data.status}</p><pre style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{job.data.result}</pre></>}{job.error&&<p role="alert">{job.error.message}</p>}</section>}
     {error&&<p role="alert">{error}</p>}
   </section>;
 }
