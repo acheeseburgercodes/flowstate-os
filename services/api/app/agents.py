@@ -101,7 +101,7 @@ def router(engine, authorize):
                 )
             except subprocess.TimeoutExpired:
                 store(id, "failed", "Agent exceeded the 180 second execution limit.")
-            except Exception:
+            except (OSError, ValueError, subprocess.SubprocessError):
                 store(
                     id,
                     "failed",
