@@ -14,6 +14,8 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.database import Workspace, make_engine
 from app.schemas import SharedResource
+from app.switch_adapter import SwitchError
+from app.switch_service import SwitchService
 
 
 class WorkspaceInput(BaseModel):
@@ -47,6 +49,7 @@ def create_app(database_url: str | None = None, token: str | None = None):
         database_url or os.getenv("FLOWSTATE_DATABASE_URL", "sqlite:///./flowstate.db")
     )
     secret = token or os.getenv("FLOWSTATE_API_TOKEN", "")
+    switch = SwitchService(engine)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -54,8 +57,11 @@ def create_app(database_url: str | None = None, token: str | None = None):
             raise RuntimeError(
                 "Set FLOWSTATE_API_TOKEN to a random value of at least 32 characters"
             )
-        yield
-        engine.dispose()
+        try:
+            yield
+        finally:
+            await switch.close()
+            engine.dispose()
 
     app = FastAPI(title="FlowState OS", version="0.1.0", lifespan=lifespan)
     origins = [
@@ -101,9 +107,30 @@ def create_app(database_url: str | None = None, token: str | None = None):
     db_dependency = Annotated[Session, Depends(session)]
     auth = [Depends(authorize)]
 
+    @app.get("/api/v1/switch/status", dependencies=auth)
+    def switch_status():
+        return switch.summary()
+
+    @app.post("/api/v1/switch/connect", dependencies=auth)
+    async def switch_connect():
+        try:
+            await switch.start()
+        except SwitchError as error:
+            raise HTTPException(409, str(error)) from error
+        return switch.summary()
+
+    @app.post("/api/v1/switch/disconnect", dependencies=auth)
+    async def switch_disconnect():
+        await switch.stop()
+        return switch.summary()
+
+    @app.get("/api/v1/switch/messages", dependencies=auth)
+    def switch_messages():
+        return switch.messages()
+
     @app.get("/api/v1/health")
     def health():
-        return {"status": "ok", "desktop": "unavailable", "switch": "not_configured"}
+        return {"status": "ok", "desktop": "unavailable", "switch": switch.status}
 
     @app.get(
         "/api/v1/workspaces", dependencies=auth, response_model=list[WorkspaceOutput]

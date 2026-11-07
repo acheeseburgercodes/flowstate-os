@@ -48,12 +48,16 @@ export async function request(
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!response.ok)
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
     throw new Error(
       response.status === 401
         ? "Connect with your device token in Settings"
-        : `Request failed (${response.status}). Check the API and try again.`,
+        : typeof error.detail === "string"
+          ? error.detail
+          : `Request failed (${response.status}). Check the API and try again.`,
     );
+  }
   return response.status === 204 ? undefined : response.json();
 }
 export const listWorkspaces = async () =>

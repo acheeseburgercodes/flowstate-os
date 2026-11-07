@@ -2,7 +2,7 @@
 name = "flowstate-api"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["fastapi>=0.115,<1", "pydantic>=2.10,<3", "uvicorn>=0.34,<1", "sqlalchemy>=2,<3", "alembic>=1.14,<2", "httpx>=0.28,<1", "psycopg[binary]>=3.2,<4"]
+dependencies = ["fastapi>=0.115,<1", "pydantic>=2.10,<3", "uvicorn>=0.34,<1", "sqlalchemy>=2,<3", "alembic>=1.14,<2", "httpx>=0.28,<1", "psycopg[binary]>=3.2,<4", "websockets>=15,<17", "jsonschema>=4.23,<5"]
 
 [dependency-groups]
 dev = ["pytest>=8,<10", "ruff>=0.9"]

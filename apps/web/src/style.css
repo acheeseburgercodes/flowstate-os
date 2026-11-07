@@ -20,6 +20,16 @@
   overflow-x: auto;
   padding: 24px 0 40px;
 }
+.room-message {
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+}
+.room-message p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 16px 0;
+  color: var(--text);
+}
 .snapshot-timeline button {
   min-width: 240px;
   text-align: left;

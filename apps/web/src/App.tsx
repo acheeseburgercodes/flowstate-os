@@ -15,6 +15,7 @@ import {
 import { apiBase, listWorkspaces, saveWorkspace, useConnection } from "./api";
 import { DesktopPage } from "./DesktopPage";
 import { TimelinePage } from "./TimelinePage";
+import { CollaborationPage } from "./CollaborationPage";
 import { isTauri } from "@tauri-apps/api/core";
 const WorkspacePage = lazy(() =>
   import("./WorkspacePage").then((module) => ({
@@ -74,7 +75,10 @@ export function App() {
           <span className="status">
             <i className={health.isSuccess ? "online" : ""} />
             {health.isSuccess ? "API reachable" : "API unavailable"}
-            <span>Switch · disconnected</span>
+            <span>
+              Switch ·{" "}
+              {health.data?.switch?.replaceAll("_", " ") ?? "unavailable"}
+            </span>
           </span>
         </header>
         <main>
@@ -85,15 +89,7 @@ export function App() {
               <Route path="/settings" element={<Connection />} />
               <Route path="/desktop" element={<DesktopPage />} />
               <Route path="/timeline" element={<TimelinePage />} />
-              <Route
-                path="/collaboration"
-                element={
-                  <Empty
-                    title="Shared intent. Local control."
-                    text="Switch is not configured. Room requests and participant contributions will appear here once the Switch adapter is connected."
-                  />
-                }
-              />
+              <Route path="/collaboration" element={<CollaborationPage />} />
               <Route path="/integrations" element={<Integrations />} />
               <Route
                 path="/activity"

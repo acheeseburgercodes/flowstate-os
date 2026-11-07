@@ -2,7 +2,7 @@
 
 Your workspace, shaped by your intent.
 
-Implementation is in progress. Workspace CRUD, the web portal, Windows enumeration, selected-window snapshot capture, and bounded restore are implemented. Switch, application launching, and OAuth are not yet implemented. See [the implementation checklist](docs/implementation.md).
+Implementation is in progress. Workspace CRUD, the web portal, Windows enumeration, selected-window snapshot capture, bounded restore, and a Switch connection/inbox adapter are implemented. The Switch adapter is contract-tested but not yet live-verified. Application launching and OAuth remain pending. See [the completion queue](docs/work-queue.md) and [Switch setup](docs/switch-setup.md).
 
 ## Architecture
 
