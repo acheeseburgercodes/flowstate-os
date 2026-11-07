@@ -6,6 +6,8 @@ target/
 __pycache__/
 .pytest_cache/
 .env
+.switch-local.json
+*.log
 *.db
 *.db-shm
 *.db-wal

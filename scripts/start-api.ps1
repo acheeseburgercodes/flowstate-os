@@ -1,5 +1,13 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$localEnvironment = Join-Path $projectRoot '.env'
+if (Test-Path -LiteralPath $localEnvironment) {
+    Get-Content -LiteralPath $localEnvironment | ForEach-Object {
+        if ($_ -match '^([^#=]+)=(.*)$' -and -not [Environment]::GetEnvironmentVariable($matches[1], 'Process')) {
+            [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
+        }
+    }
+}
 Set-Location (Join-Path $projectRoot 'services/api')
 if (-not $env:FLOWSTATE_API_TOKEN) {
     $env:FLOWSTATE_API_TOKEN = & .venv/Scripts/python.exe -c 'import secrets; print(secrets.token_urlsafe(32))'

@@ -6,7 +6,8 @@
 - Node 24.18.0 and pnpm 11.25.0 available.
 - Rust and Cargo 1.97.1 available.
 - Default Python is 3.10.4; API requires a managed Python 3.12+ environment.
-- Docker is not on PATH. PostgreSQL and Switch runtime availability remain unverified.
+- Docker Desktop is installed and running with the WSL 2 backend; `hello-world` and the Switch-managed Mattermost container were verified.
+- Switch Core 0.31.0 is running locally. The FlowState relay and Codex identities are registered in a Mattermost-backed room.
 
 ## Incremental delivery
 
@@ -18,7 +19,7 @@
 - [x] Build Tauri shell and read-only Windows enumeration.
 - [x] Add native approval, registered applications, validated layouts. Interactive demo validation remains pending.
 - [x] Capture selected windows locally and restore matching normal windows with native confirmation, rollback snapshot, and per-window results. Full application/session restoration remains pending.
-- [ ] Connect actual Switch instance and Codex runtime.
+- [x] Connect an actual Switch instance, dedicated FlowState relay, Mattermost room, and Codex identity.
 - [ ] Exercise two-human room contribution and local execution workflow.
 - [ ] Add browser companion and independently testable service connectors.
 - [ ] Build FlowBar, keyboard navigation, and reduced-motion behavior.
@@ -58,6 +59,15 @@ Switch connectivity requires a running instance, a registered agent, and an auth
 - Production web and Tauri embedded debug builds pass. Installer/signing is not complete.
 - Added local VS Code folder mapping and explicit privacy-limited room reports. Actual VS Code startup, native approval UI, browser dispatch, mixed-DPI changes, and live Switch report delivery remain unverified.
 - Demo instructions are in `docs/demo.md`; unresolved work remains in `docs/work-queue.md`.
+
+## Live Switch verification, 2026-11-07
+
+- Switch Core 0.31.0 and the Switch-managed Mattermost Docker container are running locally.
+- A dedicated always-on `flowstate-relay` and separate auto-session `flowstate-codex` identity are registered; their credentials remain only in the ignored local `.env`.
+- The Mattermost-backed `flowstate-demo` room contains both agents.
+- Authenticated operation discovery returned 57 operations.
+- The FlowState API migrated successfully, started on loopback, claimed the configured room over the Agent Bridge WebSocket, and reported `connected`, the expected room coverage, and no history gap.
+- The production web build and all 16 API tests plus 3 frontend unit tests pass in the current checkout. Interactive two-human messages and authorized publication remain a demo step, not an automated claim.
 
 ## Official research sources
 
