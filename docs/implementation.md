@@ -41,6 +41,14 @@ Switch connectivity requires a running instance, a registered agent, and an auth
 - Screenshot review completed for home and workspace pages.
 - Switch workflow, PostgreSQL, OAuth, full session restoration, and application launching remain outstanding.
 
+## Additional verification, 2026-11-07
+
+- 15 backend tests pass, including Switch protocol fixtures, durable deduplication, revision-bound approval, and uncertain publication without retry.
+- 3 frontend unit tests and 2 real API/browser workflows pass. The shared-plan browser test deliberately does not publish externally.
+- 8 native tests pass with the compiled launch fixture enabled, including an actual process launch and rejection after executable modification.
+- Web production build passes. Native plan executor compiles and validates finite actions; its complete interactive approval and browser-dispatch flow still needs live UI verification.
+- Persistent work queue: `docs/work-queue.md`. Live Switch server URL and room ID requested; user confirmed they will provide them. No server credentials are in the repository.
+
 ## Official research sources
 
 - https://github.com/sandbox-quantum/switch

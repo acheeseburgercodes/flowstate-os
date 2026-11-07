@@ -3,7 +3,7 @@ import os
 from alembic import context
 from sqlalchemy import create_engine
 
-from app import switch_service  # noqa: F401
+from app import proposals, switch_service  # noqa: F401
 from app.database import Base
 
 url = os.getenv(

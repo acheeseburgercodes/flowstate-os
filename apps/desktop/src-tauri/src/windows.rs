@@ -135,6 +135,29 @@ pub fn same_window(saved: &WindowInfo, current: &WindowInfo) -> bool {
 }
 
 #[cfg(windows)]
+pub fn confirm_action(message: &str) -> bool {
+    use windows_sys::Win32::UI::WindowsAndMessaging::*;
+    let message: Vec<u16> = message.encode_utf16().chain(Some(0)).collect();
+    let title: Vec<u16> = "FlowState — local approval"
+        .encode_utf16()
+        .chain(Some(0))
+        .collect();
+    unsafe {
+        MessageBoxW(
+            std::ptr::null_mut(),
+            message.as_ptr(),
+            title.as_ptr(),
+            MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 | MB_TOPMOST,
+        ) == IDYES
+    }
+}
+
+#[cfg(not(windows))]
+pub fn confirm_action(_: &str) -> bool {
+    false
+}
+
+#[cfg(windows)]
 fn process_identity(pid: u32) -> Option<u64> {
     use windows_sys::Win32::{Foundation::*, System::Threading::*};
     unsafe {

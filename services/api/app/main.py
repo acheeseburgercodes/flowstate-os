@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.database import Workspace, make_engine
+from app.proposals import router as proposal_router
 from app.schemas import SharedResource
 from app.switch_adapter import SwitchError
 from app.switch_service import SwitchService
@@ -106,6 +107,7 @@ def create_app(database_url: str | None = None, token: str | None = None):
 
     db_dependency = Annotated[Session, Depends(session)]
     auth = [Depends(authorize)]
+    app.include_router(proposal_router(engine, authorize, switch))
 
     @app.get("/api/v1/switch/status", dependencies=auth)
     def switch_status():

@@ -16,6 +16,8 @@ import { apiBase, listWorkspaces, saveWorkspace, useConnection } from "./api";
 import { DesktopPage } from "./DesktopPage";
 import { TimelinePage } from "./TimelinePage";
 import { CollaborationPage } from "./CollaborationPage";
+import { ApplicationRegistry } from "./ApplicationRegistry";
+import { ActivityPage } from "./ExecutionPanel";
 import { isTauri } from "@tauri-apps/api/core";
 const WorkspacePage = lazy(() =>
   import("./WorkspacePage").then((module) => ({
@@ -91,15 +93,7 @@ export function App() {
               <Route path="/timeline" element={<TimelinePage />} />
               <Route path="/collaboration" element={<CollaborationPage />} />
               <Route path="/integrations" element={<Integrations />} />
-              <Route
-                path="/activity"
-                element={
-                  <Empty
-                    title="Execution activity"
-                    text="No executor is connected. Saving a workspace records its configuration; it does not launch applications or arrange windows."
-                  />
-                }
-              />
+              <Route path="/activity" element={<ActivityPage />} />
               <Route
                 path="*"
                 element={
@@ -114,7 +108,11 @@ export function App() {
         </main>
         <footer>
           <span>FlowState / Workspace orchestration</span>
-          <span>Local execution unavailable</span>
+          <span>
+            {isTauri()
+              ? "Local actions require approval"
+              : "Local execution requires desktop"}
+          </span>
         </footer>
       </div>
     </div>
@@ -325,10 +323,9 @@ function Integrations() {
   return (
     <section>
       <h1>Integrations</h1>
+      <ApplicationRegistry />
       <p>Connection state reflects configured, verified adapters.</p>
       {[
-        "Switch rooms",
-        "Desktop companion",
         "Browser extension",
         "GitHub",
         "Google Calendar",

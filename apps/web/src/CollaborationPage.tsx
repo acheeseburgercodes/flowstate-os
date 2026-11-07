@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import { request, useConnection } from "./api";
+import { SharedPlans } from "./SharedPlans";
 
 const statusSchema = z.object({
   status: z.string(),
@@ -116,6 +117,7 @@ export function CollaborationPage() {
               a plan; no automatic response is sent.
             </p>
           )}
+          <SharedPlans messages={messages.data ?? []} />
           <h2>Room inbox</h2>
           {messages.error && <p role="alert">{messages.error.message}</p>}
           {messages.data?.length === 0 && (

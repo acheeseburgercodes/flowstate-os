@@ -68,6 +68,18 @@ class SwitchClient:
     async def close(self):
         await self.http.aclose()
 
+    async def publish_message(self, room_id: str, content: str):
+        if room_id != self.config.room_id:
+            raise SwitchError("Publication is restricted to the configured room")
+        try:
+            response = await self.http.post(
+                f"agents/{quote(self.config.agent_id, safe='')}/message",
+                json={"room_id": room_id, "content": content},
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as error:
+            raise SwitchError("Message publication was not confirmed") from error
+
     async def probe(self):
         try:
             response = await self.http.get("health")

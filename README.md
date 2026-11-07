@@ -2,7 +2,7 @@
 
 Your workspace, shaped by your intent.
 
-Implementation is in progress. Workspace CRUD, the web portal, Windows enumeration, selected-window snapshot capture, bounded restore, and a Switch connection/inbox adapter are implemented. The Switch adapter is contract-tested but not yet live-verified. Application launching and OAuth remain pending. See [the completion queue](docs/work-queue.md) and [Switch setup](docs/switch-setup.md).
+Implementation is in progress. Workspace CRUD, the web portal, Windows discovery, snapshots and bounded restore, a Switch connection/inbox adapter, revision-bound shared-plan approval, trusted application launches, and locally approved URL execution are implemented. The Switch adapter is contract-tested but not yet live-verified. See [the completion queue](docs/work-queue.md) and [Switch setup](docs/switch-setup.md).
 
 ## Architecture
 
@@ -76,9 +76,11 @@ The test creates a workspace through the UI, edits resources, selects a graph no
 
 - Intent text creates a named draft; there is no connected model or intent planner.
 - The resource graph represents configuration, not live OS window positions.
-- Native discovery reads titles, process IDs, process start time, handles, bounds, and minimized/maximized state. Executable paths, monitor metadata, native events, and launching are not implemented.
+- Native discovery reads titles, process IDs, process start time, handles, bounds, and minimized/maximized state. Executable paths for discovered windows, monitor metadata, and native events are not implemented. Trusted applications are selected with a native picker, stored with SHA-256 hashes, and rechecked before an approved launch. An application update requires re-registration.
 - Time Machine captures selected windows into local SQLite. Preview and restore support normal windows whose handle, process ID, process start time, and title still match. Native approval is required, and a pre-restore snapshot enables a separately approved rollback attempt. Bounds are verified after each operation. Closed, renamed, elevated, inaccessible, minimized, and maximized windows are not restored. Display scaling changes and full monitor compatibility are not supported yet.
-- Collaboration, integrations, and activity routes explain their unavailable state. They do not simulate results.
+- Collaboration receives addressed Switch messages, associates contributions with portable drafts, enforces revision-bound decisions, and can explicitly publish an approved plan to its configured room. A failed publication has an unknown outcome and cannot automatically retry. Live integration is pending your server credentials and room.
+- Approved shared plans can request up to 20 native app-launch/URL-open actions. A native dialog confirms exact actions; results persist locally and stream to the UI. Execution IDs prevent replay, cancellation stops remaining actions, and interrupted work is never automatically retried. Browser acceptance is not a verified tab load. Project folders, cloning, automatic layout, and result publication remain pending.
+- Activity shows local plan execution results. External OAuth connectors, browser extension, and FlowBar are not implemented.
 - Authentication is a single-device development token held in UI memory. Multi-user identity, OS credential storage, granular permissions, audit persistence, and production deployment are pending.
 - Tailwind, shadcn/Radix, and Motion are not yet integrated; styling currently uses shared CSS tokens. The UI follows the supplied palette and the unslop craft guidance.
 

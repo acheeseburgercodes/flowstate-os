@@ -1,5 +1,29 @@
 import { test, expect } from "@playwright/test";
 
+test('shared plan editing binds approval to the saved revision', async ({ page }) => {
+  const token = process.env.FLOWSTATE_API_TOKEN;
+  if (!token) throw new Error('Set FLOWSTATE_API_TOKEN');
+  await page.goto('/settings');
+  await page.getByLabel('Device token').fill(token);
+  await page.getByRole('button', { name: 'Connect', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('Connected to the workspace service');
+  await page.getByRole('link', { name: 'Collaboration', exact: true }).click();
+  await page.getByRole('button', { name: 'New shared plan' }).click();
+  await page.getByLabel('Plan name').fill(`Shared test ${Date.now()}`);
+  await page.getByLabel('Switch room ID').fill('fixture-room-not-live');
+  await page.getByLabel('Resource URLs, one per line').fill('https://react.dev');
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Approve revision 1' })).toBeEnabled();
+  await page.getByLabel('Plan name').fill('Revised shared test');
+  await expect(page.getByRole('button', { name: 'Approve revision 1' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await page.getByRole('button', { name: 'Approve revision 2' }).click();
+  await expect(page.getByLabel('Plan name')).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Publish approved plan to room' })).toBeVisible();
+  await page.screenshot({ path: 'test-results/shared-plan.png', fullPage: true });
+  // Deliberately do not click publish: this test never sends external room messages.
+});
+
 test("real API workspace round trip and graph selection", async ({ page }) => {
   const token = process.env.FLOWSTATE_API_TOKEN;
   if (!token)
