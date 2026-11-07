@@ -204,7 +204,7 @@ def router(engine, authorize, switch):
             raise HTTPException(409, "Switch is not configured")
         with Session(engine) as db:
             row = get(db, id)
-            if row.manifest["switch_room_id"] != switch.client.config.room_id:
+            if row.manifest["switch_room_id"] not in switch.client.config.room_ids:
                 raise HTTPException(
                     409, "Plan is not bound to the configured Switch room"
                 )
@@ -271,12 +271,13 @@ def router(engine, authorize, switch):
             if (
                 plan.state != "approved"
                 or plan.revision != body.revision
-                or plan.manifest["switch_room_id"] != switch.client.config.room_id
+                or plan.manifest["switch_room_id"] not in switch.client.config.room_ids
             ):
                 raise HTTPException(
                     409, "Report requires the approved revision in the configured room"
                 )
             prior = db.get(DeviceReport, str(body.execution_id))
+            report_room_id = plan.manifest["switch_room_id"]
             if prior:
                 if prior.proposal_id != str(id) or prior.summary != summary:
                     raise HTTPException(
@@ -302,7 +303,7 @@ def router(engine, authorize, switch):
         )
         publication = "sent"
         try:
-            await switch.client.publish_message(switch.client.config.room_id, content)
+            await switch.client.publish_message(report_room_id, content)
         except SwitchError:
             publication = "unknown"
         with Session(engine) as db:

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import { request, useConnection } from "./api";
 import { SharedPlans } from "./SharedPlans";
+import { useState } from "react";
 
 const statusSchema = z.object({
   status: z.string(),
@@ -10,6 +11,7 @@ const statusSchema = z.object({
   rooms: z.array(z.string()),
   history_gap: z.boolean(),
   operation_count: z.number(),
+  configured_rooms: z.array(z.string()).default([]),
 });
 const messagesSchema = z.array(
   z.object({
@@ -22,6 +24,7 @@ const messagesSchema = z.array(
   }),
 );
 export function CollaborationPage() {
+  const [room, setRoom] = useState("");
   const token = useConnection((state) => state.token);
   const client = useQueryClient();
   const status = useQuery({
@@ -117,13 +120,20 @@ export function CollaborationPage() {
               a plan; no automatic response is sent.
             </p>
           )}
-          <SharedPlans messages={messages.data ?? []} />
+          <label>
+            Room inbox filter (Mattermost or Discord)
+            <select value={room} onChange={(event) => setRoom(event.target.value)}>
+              <option value="">All configured rooms</option>
+              {status.data?.configured_rooms.map((id) => <option key={id} value={id}>{id}</option>)}
+            </select>
+          </label>
+          <SharedPlans messages={(messages.data ?? []).filter((message) => !room || message.room_id === room)} />
           <h2>Room inbox</h2>
           {messages.error && <p role="alert">{messages.error.message}</p>}
           {messages.data?.length === 0 && (
             <p>No addressed messages received yet</p>
           )}
-          {messages.data?.map((message) => (
+          {messages.data?.filter((message) => !room || message.room_id === room).map((message) => (
             <article className="room-message" key={message.id}>
               <small>
                 {message.sender} · {message.room_id}

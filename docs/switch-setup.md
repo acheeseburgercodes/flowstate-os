@@ -1,5 +1,13 @@
 # Connect a real Switch room
 
+## Mattermost and Discord together
+
+Connect both collaboration bridges in Switch Console. For Discord, configure your Discord bot through Console's Discord setup and install it into your intended Discord server. Create one Switch room attached to Mattermost and another attached to the intended Discord channel. Add the dedicated FlowState relay to both rooms and authorize the intended participants in Switch addressing settings.
+
+Set `SWITCH_ROOM_ID` to the Mattermost room ID and `SWITCH_ADDITIONAL_ROOM_IDS` to the Discord Switch room ID (comma-separated for more rooms), then restart the API and connect from Collaboration. Use Switch room IDs, not Discord channel IDs. The relay uses Switch's all-room connection scope when multiple rooms are configured, filters ingestion to the configured allowlist, and publishes plans and reports only to their bound room. The inbox selector filters contributions by room. No messages are automatically mirrored between platforms.
+
+The local Mattermost bridge is verified. A Discord bridge and Discord message delivery have not yet been configured or verified on this host.
+
 The adapter implements the documented Agent Bridge WebSocket and HTTP operation interfaces. In addition to contract tests, the local setup was live-verified on 2026-11-07 against Switch Core 0.31.0 and a Mattermost-backed room. It discovered 57 operations, claimed the configured room, and reached `connected` without a history gap.
 
 1. Install Switch Console and follow the official quickstart: https://docs.switchagents.ai/switch-rooms/getting-started/index.md. Start Docker Desktop first. The verified local stack uses Switch Core on loopback and Switch-managed Mattermost in a Docker Linux container.

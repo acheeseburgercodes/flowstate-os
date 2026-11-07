@@ -142,12 +142,14 @@ class SwitchService:
                         await asyncio.to_thread(self.save_state)
                         self.status = (
                             "connected"
-                            if self.client.config.room_id in state.rooms
+                            if set(self.client.config.room_ids).issubset(state.rooms)
                             and state.connected
                             else "room_unavailable"
                         )
 
                     async def ingest(message, gap):
+                        if message["room_id"] not in self.client.config.room_ids:
+                            return
                         if len(message["body"]) > 65536:
                             raise SwitchError(
                                 "Room message exceeds FlowState's size limit"
@@ -212,6 +214,7 @@ class SwitchService:
             "rooms": self.state.rooms if self.state.connected else [],
             "history_gap": self.state.gap,
             "operation_count": len(self.client.operations) if self.client else 0,
+            "configured_rooms": list(self.client.config.room_ids) if self.client else [],
         }
 
     def messages(self):

@@ -20,6 +20,11 @@ class SwitchConfig:
     agent_id: str
     api_key: str
     room_id: str
+    additional_room_ids: tuple[str, ...] = ()
+
+    @property
+    def room_ids(self):
+        return tuple(dict.fromkeys((self.room_id, *self.additional_room_ids)))
 
     @classmethod
     def from_environment(cls):
@@ -50,7 +55,12 @@ class SwitchConfig:
             raise SwitchError(
                 "Use HTTPS for a remote Switch server or HTTP on loopback"
             )
-        return cls(values[0].rstrip("/"), *values[1:])
+        extra = tuple(
+            room.strip()
+            for room in os.getenv("SWITCH_ADDITIONAL_ROOM_IDS", "").split(",")
+            if room.strip()
+        )
+        return cls(values[0].rstrip("/"), *values[1:], additional_room_ids=extra)
 
 
 class SwitchClient:
@@ -69,7 +79,7 @@ class SwitchClient:
         await self.http.aclose()
 
     async def publish_message(self, room_id: str, content: str):
-        if room_id != self.config.room_id:
+        if room_id not in self.config.room_ids:
             raise SwitchError("Publication is restricted to the configured room")
         try:
             response = await self.http.post(
@@ -146,9 +156,9 @@ class SwitchClient:
     ):
         params = {
             "connection_id": connection_id,
-            "scope": "single",
+            "scope": "all" if self.config.additional_room_ids else "single",
             "filter": "all",
-            "rooms": self.config.room_id,
+            "rooms": ",".join(self.config.room_ids),
             "start_from": "head" if cursor is None else str(cursor),
             "client": "flowstate",
             "client_version": "0.1.0",
