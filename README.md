@@ -42,6 +42,10 @@ Switch handles the rooms and routes messages between people and agents. The sepa
 
 ## Hackathon status
 
+The Operations page adds a browser-local delegation planner: create specialist profiles, assign tasks, auto-route by explicit skill and current queue size, pause routing to a profile, and inspect the reason for an assignment. Plans persist in this browser. These profiles do not launch AI processes or dispatch to Switch agents yet. Marking an assignment reviewed is a human planning action, not proof of agent execution.
+
+The interface includes TempVault-inspired warm dark and cream/violet light themes, an animated theme transition, task-entry animations, and scroll reveals. Reduced-motion preferences disable movement.
+
 On November 7, the relay connected to Switch Core 0.31.0 and a real Mattermost room. Authentication, discovery of 57 operations, and WebSocket room coverage passed. A separate Codex identity is registered; a complete conversation with its running agent still needs to be demonstrated.
 
 Mattermost and Discord can be used in the same build through separate Switch rooms. The inbox can filter by room, and plans publish results back to their own room. Mattermost is connected on the development machine. Discord support is implemented and covered by adapter tests, but its bot bridge has not been configured or tested live here.

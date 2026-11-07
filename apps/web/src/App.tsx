@@ -1,6 +1,8 @@
 import { lazy, Suspense, useState, type FormEvent } from "react";
 import { Link, NavLink, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import { Reveal } from "./Reveal";
+import { Operations } from "./Operations";
+import { ThemeToggle } from "./ThemeToggle";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
@@ -27,6 +29,7 @@ const WorkspacePage = lazy(() =>
 );
 
 const navigation = [
+  ["/operations", "Operations", Network],
   ["/", "Command surface", Command],
   ["/desktop", "Local windows", Monitor],
   ["/timeline", "Time Machine", History],
@@ -75,6 +78,7 @@ export function App() {
       </aside>
       <div className="content">
         <header>
+          <ThemeToggle />
           <span>Your workspace, shaped by your intent</span>
           <span className="status">
             <i className={health.isSuccess ? "online" : ""} />
@@ -88,6 +92,7 @@ export function App() {
         <main key={location.pathname} className="page-enter">
           <Suspense fallback={<p>Loading workspace…</p>}>
             <Routes>
+              <Route path="/operations" element={<Operations />} />
               <Route path="/" element={<Home />} />
               <Route path="/workspace/:id" element={<WorkspacePage />} />
               <Route path="/settings" element={<Connection />} />
