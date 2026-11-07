@@ -25,4 +25,4 @@ The example host is a placeholder; use your server's actual address. HTTP is per
 
 The adapter stops on takeover, terminal eviction, authorization refusal, or malformed frames. Recoverable transport failures back off to 30 seconds. A history gap remains visible and prevents assuming complete context. No automated replies or write retries are performed by the inbox checkpoint.
 
-Next checkpoints add manifest review, local execution, and explicitly authorized result publication. Do not present the current inbox as the complete hackathon scenario.
+Manifest review, revision-bound approval, local execution, and explicitly authorized result-count publication are implemented. Follow [the demo runbook](demo.md) to verify them against your actual room. The complete live hackathon scenario remains unverified.

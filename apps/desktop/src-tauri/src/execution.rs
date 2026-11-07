@@ -14,8 +14,16 @@ static CANCELLED: AtomicBool = AtomicBool::new(false);
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Action {
-    LaunchApplication { application_id: String },
-    OpenUrl { url: String },
+    LaunchApplication {
+        application_id: String,
+    },
+    OpenUrl {
+        url: String,
+    },
+    OpenProject {
+        application_id: String,
+        project_id: String,
+    },
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -170,6 +178,20 @@ pub fn execute(
                 format!("Launch {}", app.executable)
             }
             Action::OpenUrl { url } => format!("Open {}", validate_url(url)?),
+            Action::OpenProject {
+                application_id,
+                project_id,
+            } => {
+                let app = applications
+                    .iter()
+                    .find(|app| &app.id == application_id)
+                    .ok_or("VS Code is not registered")?;
+                format!(
+                    "Open project {} in {}",
+                    crate::projects::resolve(path, project_id)?.display(),
+                    app.executable
+                )
+            }
         });
     }
     if preview.join("\n").len() > 8000 {
@@ -205,6 +227,20 @@ pub fn execute(
         }
         let result = match action {
             Action::OpenUrl { url } => open_url(url),
+            Action::OpenProject {
+                application_id,
+                project_id,
+            } => crate::projects::resolve(path, project_id)
+                .and_then(|directory| {
+                    crate::applications::spawn_verified(path, application_id, Some(&directory))
+                })
+                .map(|mut child| {
+                    let pid = child.id();
+                    std::thread::spawn(move || {
+                        let _ = child.wait();
+                    });
+                    format!("VS Code launch requested with PID {pid}; editor state is not verified")
+                }),
             Action::LaunchApplication { application_id } => {
                 crate::applications::launch_verified(path, application_id).map(|mut child| {
                     let pid = child.id();

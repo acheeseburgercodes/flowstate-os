@@ -131,3 +131,84 @@ def test_unknown_publication_is_not_retried(tmp_path, monkeypatch):
         )
     assert len(attempts) == 1
     assert "Local device approval is still required" in attempts[0][1]
+
+
+def test_device_report_is_private_revision_bound_and_not_retried(tmp_path, monkeypatch):
+    for key, value in {
+        "SWITCH_BASE_URL": "http://127.0.0.1:8080",
+        "SWITCH_AGENT_ID": "fixture",
+        "SWITCH_AGENT_API_KEY": "fixture",
+        "SWITCH_ROOM_ID": "fixture-room",
+    }.items():
+        monkeypatch.setenv(key, value)
+    attempts = []
+
+    async def uncertain(self, room_id, content):
+        attempts.append((room_id, content))
+        raise SwitchError("Response lost")
+
+    monkeypatch.setattr(SwitchClient, "publish_message", uncertain)
+    url = f"sqlite:///{tmp_path / 'reports.db'}"
+    engine = make_engine(url)
+    Base.metadata.create_all(engine)
+    engine.dispose()
+    token = "test-only-" + "x" * 40
+    with TestClient(create_app(url, token)) as client:
+        headers = {"Authorization": f"Bearer {token}"}
+        plan = client.post(
+            "/api/v1/proposals",
+            headers=headers,
+            json={
+                "idempotency_key": str(uuid4()),
+                "manifest": {
+                    "workspace_id": str(uuid4()),
+                    "name": "Private project name",
+                    "switch_room_id": "fixture-room",
+                },
+            },
+        ).json()
+        path = f"/api/v1/proposals/{plan['id']}"
+        report = {
+            "execution_id": str(uuid4()),
+            "revision": 1,
+            "state": "completed",
+            "completed_count": 1,
+            "failed_count": 0,
+        }
+        assert (
+            client.post(path + "/report", headers=headers, json=report).status_code
+            == 409
+        )
+        client.post(
+            path + "/decision",
+            headers=headers,
+            json={"revision": 1, "decision": "approve"},
+        )
+        assert (
+            client.post(
+                path + "/report",
+                headers=headers,
+                json={**report, "local_path": "C:/private"},
+            ).status_code
+            == 422
+        )
+        assert (
+            client.post(
+                path + "/report", headers=headers, json={**report, "revision": 2}
+            ).status_code
+            == 409
+        )
+        for _ in range(2):
+            response = client.post(path + "/report", headers=headers, json=report)
+            assert response.status_code == 200
+            assert response.json()["publication"] == "unknown"
+        assert (
+            client.post(
+                path + "/report", headers=headers, json={**report, "completed_count": 2}
+            ).status_code
+            == 409
+        )
+    assert len(attempts) == 1
+    assert attempts[0][0] == "fixture-room"
+    assert "Private project name" not in attempts[0][1]
+    assert "1 requests accepted" in attempts[0][1]

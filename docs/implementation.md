@@ -16,13 +16,13 @@
 - [x] Bootstrap strict React/Vite frontend and FastAPI service.
 - [x] Add workspace persistence, migration, development token authentication, workspace CRUD. Production device identity remains pending.
 - [x] Build Tauri shell and read-only Windows enumeration.
-- [ ] Add native approval, registered applications, validated layouts.
+- [x] Add native approval, registered applications, validated layouts. Interactive demo validation remains pending.
 - [x] Capture selected windows locally and restore matching normal windows with native confirmation, rollback snapshot, and per-window results. Full application/session restoration remains pending.
 - [ ] Connect actual Switch instance and Codex runtime.
 - [ ] Exercise two-human room contribution and local execution workflow.
 - [ ] Add browser companion and independently testable service connectors.
 - [ ] Build FlowBar, keyboard navigation, and reduced-motion behavior.
-- [ ] Run frontend, backend, native, and end-to-end checks.
+- [x] Run frontend, backend, native, and end-to-end checks; see the current checkpoint evidence below for failures and exclusions.
 - [ ] Complete security, installation, demo, and submission documentation.
 
 ## Risks and boundaries
@@ -48,6 +48,16 @@ Switch connectivity requires a running instance, a registered agent, and an auth
 - 8 native tests pass with the compiled launch fixture enabled, including an actual process launch and rejection after executable modification.
 - Web production build passes. Native plan executor compiles and validates finite actions; its complete interactive approval and browser-dispatch flow still needs live UI verification.
 - Persistent work queue: `docs/work-queue.md`. Live Switch server URL and room ID requested; user confirmed they will provide them. No server credentials are in the repository.
+
+## Current checkpoint verification, 2026-11-07
+
+- 16 API tests pass, including private result reporting, revision binding, and no resend after an uncertain delivery. Ruff passes and migration 0004 applies.
+- 3 frontend unit tests and 2 real local API/browser workflows pass. The initial browser run failed because the temporary API was stopped; both passed after restarting it.
+- 10 standard native tests pass; the optional launch fixture is excluded by default. An explicit fixture run failed because Windows Application Control blocked the executable (OS error 4551). No policy was disabled or bypassed. The earlier successful fixture result does not establish current launch permission.
+- Monitor work-area discovery, negative-origin layout geometry, actual disposable-window movement/restoration, snapshot persistence, and project registration/revocation checks pass.
+- Production web and Tauri embedded debug builds pass. Installer/signing is not complete.
+- Added local VS Code folder mapping and explicit privacy-limited room reports. Actual VS Code startup, native approval UI, browser dispatch, mixed-DPI changes, and live Switch report delivery remain unverified.
+- Demo instructions are in `docs/demo.md`; unresolved work remains in `docs/work-queue.md`.
 
 ## Official research sources
 

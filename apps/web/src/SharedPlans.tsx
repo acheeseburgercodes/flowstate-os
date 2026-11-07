@@ -313,6 +313,8 @@ function PlanEditor({
       {mutation.error && <p role="alert">{mutation.error.message}</p>}
       {plan?.state === "approved" && (
         <ExecutionPanel
+          proposalId={plan.id}
+          revision={plan.revision}
           urls={plan.manifest.resources.map((resource) => resource.url)}
         />
       )}

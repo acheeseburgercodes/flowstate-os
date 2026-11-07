@@ -16,6 +16,7 @@ pub struct WindowInfo {
 
 #[cfg(windows)]
 pub fn enumerate() -> Result<Vec<WindowInfo>, String> {
+    let _dpi = crate::layouts::DpiScope::enter()?;
     use windows_sys::Win32::Foundation::{HWND, LPARAM, RECT};
     use windows_sys::Win32::UI::WindowsAndMessaging::*;
 
@@ -224,6 +225,7 @@ pub fn confirm_restore(name: &str, count: usize) -> bool {
 
 #[cfg(windows)]
 pub fn restore_bounds(saved: &WindowInfo) -> Result<(), String> {
+    let _dpi = crate::layouts::DpiScope::enter()?;
     use windows_sys::Win32::{Foundation::*, Graphics::Gdi::*, UI::WindowsAndMessaging::*};
     if saved.minimized || saved.maximized {
         return Err("Only normal window bounds are supported in this version".into());

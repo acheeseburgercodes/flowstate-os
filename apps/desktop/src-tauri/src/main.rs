@@ -1,9 +1,64 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod applications;
 mod execution;
+mod layouts;
+mod projects;
 mod snapshots;
 mod windows;
 use tauri::{Emitter, Manager};
+
+#[tauri::command]
+async fn register_project(app: tauri::AppHandle) -> Result<projects::Project, String> {
+    let path = snapshot_path(&app)?;
+    tauri::async_runtime::spawn_blocking(move || projects::register(&path))
+        .await
+        .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn list_projects(app: tauri::AppHandle) -> Result<Vec<projects::Project>, String> {
+    let path = snapshot_path(&app)?;
+    tauri::async_runtime::spawn_blocking(move || projects::list(&path))
+        .await
+        .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn revoke_project(app: tauri::AppHandle, id: String) -> Result<(), String> {
+    let path = snapshot_path(&app)?;
+    tauri::async_runtime::spawn_blocking(move || projects::revoke(&path, &id))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_monitors() -> Result<Vec<layouts::Monitor>, String> {
+    tauri::async_runtime::spawn_blocking(layouts::monitors)
+        .await
+        .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn preview_layout(
+    handles: Vec<String>,
+    monitor_id: String,
+    layout: String,
+) -> Result<Vec<windows::WindowInfo>, String> {
+    tauri::async_runtime::spawn_blocking(move || layouts::preview(handles, monitor_id, layout))
+        .await
+        .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn arrange_windows(
+    app: tauri::AppHandle,
+    handles: Vec<String>,
+    monitor_id: String,
+    layout: String,
+) -> Result<snapshots::RestoreResult, String> {
+    let path = snapshot_path(&app)?;
+    tauri::async_runtime::spawn_blocking(move || {
+        layouts::arrange(&path, handles, monitor_id, layout)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
 
 #[tauri::command]
 async fn execute_plan(
@@ -136,7 +191,13 @@ fn main() {
             launch_application,
             execute_plan,
             cancel_execution,
-            list_executions
+            list_executions,
+            list_monitors,
+            preview_layout,
+            arrange_windows,
+            register_project,
+            list_projects,
+            revoke_project
         ])
         .run(tauri::generate_context!())
         .expect("FlowState desktop failed to start");

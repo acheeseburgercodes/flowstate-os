@@ -3,7 +3,7 @@ use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
-static RESTORE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+pub(crate) static RESTORE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Snapshot {
@@ -12,6 +12,8 @@ pub struct Snapshot {
     pub captured_at: u64,
     pub windows: Vec<WindowInfo>,
     pub schema_version: u32,
+    #[serde(default)]
+    pub monitors: Vec<crate::layouts::Monitor>,
 }
 
 #[derive(Serialize)]
@@ -46,7 +48,8 @@ pub fn save(path: &Path, name: String, windows: Vec<WindowInfo>) -> Result<Snaps
             .map_err(|e| e.to_string())?
             .as_secs(),
         windows,
-        schema_version: 1,
+        schema_version: 2,
+        monitors: crate::layouts::monitors()?,
     };
     connect(path)?
         .execute(
@@ -94,8 +97,8 @@ pub fn load(path: &Path, id: &str) -> Result<Snapshot, String> {
         })
         .map_err(|_| "Snapshot not found".to_string())?;
     let snapshot: Snapshot = serde_json::from_str(&payload).map_err(|e| e.to_string())?;
-    if snapshot.schema_version != 1 {
-        return Err("Unsupported snapshot version".into());
+    if snapshot.schema_version != 2 {
+        return Err("Legacy snapshot coordinates cannot be safely restored. Capture a new DPI-aware snapshot.".into());
     }
     Ok(snapshot)
 }
@@ -116,6 +119,17 @@ pub fn restore(path: &Path, id: &str) -> Result<RestoreResult, String> {
         .try_lock()
         .map_err(|_| "Another restore is awaiting approval or running")?;
     let snapshot = load(path, id)?;
+    let displays = crate::layouts::monitors()?;
+    if snapshot.monitors.len() != displays.len()
+        || snapshot.monitors.iter().any(|saved| {
+            !displays.iter().any(|current| {
+                (saved.x, saved.y, saved.width, saved.height)
+                    == (current.x, current.y, current.width, current.height)
+            })
+        })
+    {
+        return Err("Monitor work areas changed since capture. Use a new layout preview instead of restoring stale coordinates.".into());
+    }
     if !windows::confirm_restore(&snapshot.name, snapshot.windows.len()) {
         return Err("Restore cancelled at the local approval dialog".into());
     }

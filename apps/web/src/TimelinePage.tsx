@@ -8,7 +8,7 @@ const snapshotSchema = z.object({
   id: z.string(),
   name: z.string(),
   captured_at: z.number(),
-  schema_version: z.literal(1),
+  schema_version: z.union([z.literal(1), z.literal(2)]),
   windows: windowsSchema,
 });
 const resultSchema = z.object({

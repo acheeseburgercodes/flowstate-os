@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import JSON, DateTime, Integer, String, select, update
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
@@ -37,6 +37,25 @@ class NewProposal(BaseModel):
     idempotency_key: UUID
     manifest: WorkspaceManifest
     source_message_ids: list[UUID] = Field(default_factory=list, max_length=100)
+
+
+class DeviceReport(Base):
+    __tablename__ = "device_reports"
+    execution_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("proposals.id"), index=True)
+    summary: Mapped[dict] = mapped_column(JSON)
+    publication: Mapped[str] = mapped_column(String(32), default="sending")
+
+
+class ReportInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    execution_id: UUID
+    revision: int = Field(ge=1)
+    state: Literal[
+        "completed", "partially_completed", "failed", "cancelled", "interrupted"
+    ]
+    completed_count: int = Field(ge=0, le=20)
+    failed_count: int = Field(ge=0, le=20)
 
 
 class EditProposal(BaseModel):
@@ -235,5 +254,64 @@ def router(engine, authorize, switch):
             )
             db.commit()
             return output(get(db, id))
+
+    @routes.post("/{id}/report")
+    async def report(id: UUID, body: ReportInput):
+        if switch.client is None:
+            raise HTTPException(409, "Switch is not configured")
+        if body.completed_count + body.failed_count > 20:
+            raise HTTPException(422, "Report exceeds the local action limit")
+        if switch.state.gap:
+            raise HTTPException(
+                409, "Reconcile missing Switch history before publishing"
+            )
+        summary = body.model_dump(mode="json")
+        with Session(engine) as db:
+            plan = get(db, id)
+            if (
+                plan.state != "approved"
+                or plan.revision != body.revision
+                or plan.manifest["switch_room_id"] != switch.client.config.room_id
+            ):
+                raise HTTPException(
+                    409, "Report requires the approved revision in the configured room"
+                )
+            prior = db.get(DeviceReport, str(body.execution_id))
+            if prior:
+                if prior.proposal_id != str(id) or prior.summary != summary:
+                    raise HTTPException(
+                        409, "Execution ID already has a different report"
+                    )
+                return {"publication": prior.publication}
+            db.add(
+                DeviceReport(
+                    execution_id=str(body.execution_id),
+                    proposal_id=str(id),
+                    summary=summary,
+                )
+            )
+            try:
+                db.commit()
+            except IntegrityError as error:
+                raise HTTPException(409, "Report is already being published") from error
+        content = (
+            f"FlowState device report for plan {id}, revision {body.revision}, execution {body.execution_id}: "
+            f"{body.state}; {body.completed_count} requests accepted, {body.failed_count} failed. "
+            "Counts are reported by the local client. Application readiness and browser page loading are not verified. "
+            "No local paths, window titles, or executable locations are included."
+        )
+        publication = "sent"
+        try:
+            await switch.client.publish_message(switch.client.config.room_id, content)
+        except SwitchError:
+            publication = "unknown"
+        with Session(engine) as db:
+            db.execute(
+                update(DeviceReport)
+                .where(DeviceReport.execution_id == str(body.execution_id))
+                .values(publication=publication)
+            )
+            db.commit()
+        return {"publication": publication}
 
     return routes

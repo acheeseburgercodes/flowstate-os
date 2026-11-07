@@ -83,7 +83,7 @@ pub fn register(database: &Path) -> Result<TrustedApplication, String> {
         .add_filter("Windows application", &["exe"])
         .pick_file()
         .ok_or("Registration cancelled")?;
-    if !crate::windows::confirm_action(&format!("Trust this application for future approved launches?\n\n{}\n\nNo arguments or shell commands will be accepted.", selected.display())) { return Err("Registration cancelled".into()); }
+    if !crate::windows::confirm_action(&format!("Trust this application for future approved launches?\n\n{}\n\nNo arbitrary arguments or shell commands are accepted. Registered VS Code can open separately authorized folders after confirmation.", selected.display())) { return Err("Registration cancelled".into()); }
     register_path(database, &selected)
 }
 
@@ -117,6 +117,14 @@ pub fn revoke(database: &Path, id: &str) -> Result<(), String> {
 }
 
 pub(crate) fn launch_verified(database: &Path, id: &str) -> Result<Child, String> {
+    spawn_verified(database, id, None)
+}
+
+pub(crate) fn spawn_verified(
+    database: &Path,
+    id: &str,
+    project: Option<&Path>,
+) -> Result<Child, String> {
     let (path, expected): (String, String) = connect(database)?
         .query_row(
             "SELECT executable, sha256 FROM trusted_applications WHERE id=?1",
@@ -128,13 +136,28 @@ pub(crate) fn launch_verified(database: &Path, id: &str) -> Result<Child, String
     if digest(&path)? != expected {
         return Err("Application changed since registration. Register it again to review the updated executable.".into());
     }
-    Command::new(&path)
-        .current_dir(
-            path.parent()
-                .ok_or("Application directory is unavailable")?,
-        )
-        .spawn()
-        .map_err(|error| error.to_string())
+    let mut command = Command::new(&path);
+    command.current_dir(
+        path.parent()
+            .ok_or("Application directory is unavailable")?,
+    );
+    if let Some(directory) = project {
+        let filename = path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_ascii_lowercase();
+        if !matches!(filename.as_str(), "code.exe" | "code - insiders.exe") {
+            return Err(
+                "Project arguments are supported only by the registered VS Code launcher".into(),
+            );
+        }
+        if !directory.is_absolute() || !directory.is_dir() {
+            return Err("Project must be an authorized existing directory".into());
+        }
+        command.arg("--new-window").arg(directory);
+    }
+    command.spawn().map_err(|error| error.to_string())
 }
 
 pub fn launch(database: &Path, id: &str) -> Result<u32, String> {
@@ -178,6 +201,9 @@ mod tests {
         std::fs::copy(fixture, &copied).unwrap();
         let database = directory.join("registry.db");
         let app = super::register_path(&database, &copied).unwrap();
+        assert!(super::spawn_verified(&database, &app.id, Some(&directory))
+            .unwrap_err()
+            .contains("VS Code"));
         let mut child = super::launch_verified(&database, &app.id).unwrap();
         assert!(child.wait().unwrap().success());
         use std::io::Write;

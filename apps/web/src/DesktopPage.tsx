@@ -2,6 +2,7 @@ import { isTauri, invoke } from "@tauri-apps/api/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
+import { LayoutControls } from "./LayoutControls";
 
 export const windowsSchema = z.array(
   z.object({
@@ -81,6 +82,7 @@ export function DesktopPage() {
               </p>
             </form>
           )}
+          {enabled && <LayoutControls handles={handles} />}
           {capture.isSuccess && <p role="status">Snapshot captured</p>}
           {capture.error && <p role="alert">{String(capture.error)}</p>}
           {enabled && query.isPending && <p>Discovering windows…</p>}
