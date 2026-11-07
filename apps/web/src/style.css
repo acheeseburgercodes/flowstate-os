@@ -14,6 +14,7 @@
   --error: #c77d83;
   --radius: 8px;
 }
+.startup{min-height:100dvh;display:grid;place-items:center;background:#080a0b;padding:32px;color:#f4f0eb}.startup-card{width:min(800px,100%);padding:40px;border:1px solid #34302c;border-radius:20px;background:#111110}.startup-card>svg{color:#b8a0ff}.startup-track{display:flex;flex-wrap:wrap;gap:20px;padding:24px 0}.startup-track>span{display:flex;align-items:center;gap:8px;font-size:12px;color:#aaa}.startup-track .current{color:#b8a0ff}.startup-spinner{width:16px;height:16px;border:2px solid #534768;border-top-color:#c6afff;border-radius:50%;animation:startup-spin 1s linear infinite}.startup pre{white-space:pre-wrap;max-height:220px;overflow:auto;font:12px/1.8 monospace;color:#c3b9cf}.startup details{padding:16px;background:#080a0b;border-radius:8px}@keyframes startup-spin{to{transform:rotate(360deg)}}
 .snapshot-timeline {
   display: flex;
   gap: 16px;

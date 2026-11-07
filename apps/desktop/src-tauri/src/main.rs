@@ -8,6 +8,19 @@ mod windows;
 use tauri::{Emitter, Manager};
 
 #[tauri::command]
+fn startup_status() -> Result<String, String> {
+    match std::env::var("FLOWSTATE_STARTUP_STATUS") {
+        Ok(path) => std::fs::read_to_string(path).map_err(|_| "Startup status is updating".to_string()),
+        Err(_) => Ok("{\"ready\":true,\"logs\":[]}".to_string()),
+    }
+}
+
+#[tauri::command]
+fn local_session_token() -> Result<String, String> {
+    std::env::var("FLOWSTATE_API_TOKEN").map_err(|_| "Start with Launch FlowState to connect automatically".to_string())
+}
+
+#[tauri::command]
 async fn register_project(app: tauri::AppHandle) -> Result<projects::Project, String> {
     let path = snapshot_path(&app)?;
     tauri::async_runtime::spawn_blocking(move || projects::register(&path))
@@ -180,6 +193,8 @@ async fn discover_windows() -> Result<Vec<windows::WindowInfo>, String> {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            startup_status,
+            local_session_token,
             discover_windows,
             capture_snapshot,
             list_snapshots,

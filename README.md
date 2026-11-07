@@ -6,7 +6,21 @@ It takes contributions from a Switch room and lets you assemble a workspace plan
 
 Built for the WeMakeDevs Flip the Switch hackathon with React, FastAPI, Tauri, and Switch.
 
-## Architecture
+## Open the application on the configured Windows laptop
+
+**Current machine blocker:** Windows Application Control rejected the latest unsigned desktop executable on November 7. The earlier embedded build reached a connected workspace, and the service startup is verified, but this rebuilt binary needs an approved signing/allowlisting path before native launch will work on this laptop. No security policy was disabled. The web UI and backend remain usable; native window controls require the desktop binary to be allowed.
+
+Double-click **Launch FlowState.vbs** in this repository (or the FlowState OS desktop shortcut). The application opens immediately with an animated startup screen and logs. The launcher starts Docker Desktop, the existing Switch PostgreSQL database, Mattermost, Switch Core, and the FlowState API as needed, then waits for acknowledged room coverage. The desktop connects to its device token automatically and opens Operations. No development terminal or Vite server is needed.
+
+This uses the Switch installation already configured by Switch Desktop under `%APPDATA%\switchdash\local-switch-server\native` and the ignored root `.env`. It is not a fresh-machine installer. First-time setup still requires the prerequisites and Switch configuration below. Codex must be installed and signed in (`codex login`); AI execution needs internet access. Existing services are reused and remain running when you close the app. Startup errors and service logs are under `%LOCALAPPDATA%\FlowState\startup`.
+
+After source changes, rebuild the embedded application:
+
+```powershell
+pnpm --filter @flowstate/desktop exec tauri build --debug --no-bundle
+```
+
+In **Operations**, add tasks with Research, Code, or Review skills. Auto-route assigns enabled specialists by skill and queue size. Click **Run assigned queue**, or select a task and **Run assigned agent**. Two read-only Codex jobs can run concurrently; queue rows show actual execution status, and selecting a task shows its answer. On November 7, all three tasks in a live queue completed successfully.
 
 ## What to look for in the demo
 
@@ -15,9 +29,9 @@ The judging criteria are Switch usage (30%), technical execution (25%), creativi
 | Criterion | What FlowState does | Evidence and limits |
 | --- | --- | --- |
 | Use of Switch | Receives team contributions through a dedicated relay and publishes approved results to the original room. | Live Mattermost room coverage was verified. Without Switch, this collaboration path stops; local workspace tools still work. |
-| Technical execution | React UI, FastAPI persistence, and a Tauri Windows companion with approval gates. | Reproduction commands below; web build and 17 API tests pass. Discord live setup and a full interactive demo remain pending. |
+| Technical execution | React UI, FastAPI persistence, and a Tauri Windows companion with approval gates. | Embedded desktop build and 19 API tests pass. Automatic local startup and three live specialist jobs verified. Discord live setup remains pending. |
 | Creativity and impact | Takes a shared workspace plan from team chat to each person's locally approved setup, with saved window arrangements. | Intended to reduce repeated setup during shared coding or research sessions; no measured productivity claim. |
-| Presentation | Shows where messages, approvals, local actions, and results belong. | The architecture and recording script explain the boundaries. The generated captioned UI tour is not proof of an end-to-end agent run. |
+| Presentation | Music-only product advertisement using actual connected UI and completed agent results. | 1080p/60 FPS animated film; the film is edited product footage, not an uninterrupted chat-to-desktop execution recording. |
 
 Motion includes page slides, viewport fade-ins, and button feedback, with reduced-motion support. The reveal component is adapted from Klyv UI through 21st.dev; see [third-party notices](THIRD_PARTY_NOTICES.md).
 
@@ -50,7 +64,7 @@ On November 7, the relay connected to Switch Core 0.31.0 and a real Mattermost r
 
 Mattermost and Discord can be used in the same build through separate Switch rooms. The inbox can filter by room, and plans publish results back to their own room. Mattermost is connected on the development machine. Discord support is implemented and covered by adapter tests, but its bot bridge has not been configured or tested live here.
 
-The web production build and 17 backend tests pass. Earlier checks also passed 3 frontend and 10 native tests; one optional launch test is excluded because Windows policy blocked its fixture. The full chat-to-desktop demo and recording are still pending. See the [submission brief](docs/hackathon-submission.md), [demo runbook](docs/demo.md), and [Switch setup](docs/switch-setup.md).
+The embedded desktop build and 19 backend tests pass. Earlier checks also passed 3 frontend and 10 native tests; one optional launch test is excluded because Windows policy blocked its fixture. Full multi-person chat-to-desktop execution is not claimed as verified. See the [submission brief](docs/hackathon-submission.md), [demo runbook](docs/demo.md), and [Switch setup](docs/switch-setup.md).
 
 ## Run on Windows
 
@@ -85,7 +99,7 @@ cd services/api
 .venv/Scripts/python.exe -m pytest -q
 .venv/Scripts/ruff.exe check app tests migrations
 cd ../../apps/desktop/src-tauri
-cargo test
+cargo test --features custom-protocol
 cargo build
 ```
 
@@ -100,7 +114,7 @@ The test creates a workspace through the UI, edits resources, selects a graph no
 
 ## Current limitations
 
-- Intent text creates a named draft; there is no connected model or intent planner.
+- Command-surface intent text creates a named draft. AI specialist execution is available separately in Operations; it does not automatically generate a workspace plan.
 - The resource graph represents configuration, not live OS window positions.
 - Native discovery reads titles, process IDs, process start time, handles, bounds, minimized/maximized state, and monitor work areas. Executable paths for discovered windows and native event subscriptions are not implemented. Trusted applications are selected with a native picker, stored with SHA-256 hashes, and rechecked before an approved launch. An application update requires re-registration.
 - Time Machine captures selected windows into local SQLite. Preview and restore support normal windows whose handle, process ID, process start time, and title still match. Native approval is required, and a pre-restore snapshot enables a separately approved rollback attempt. Bounds are verified after each operation. Closed, renamed, elevated, inaccessible, minimized, and maximized windows are not restored. Version 2 snapshots use per-monitor DPI coordinates and record monitor work areas; incompatible display geometry and legacy snapshots are refused. Mixed-DPI hardware changes still need interactive validation.

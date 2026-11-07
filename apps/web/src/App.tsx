@@ -71,7 +71,7 @@ export function App() {
             <small>
               {isTauri()
                 ? "Read-only discovery available"
-                : "Desktop companion required"}
+                : "Window controls need desktop"}
             </small>
           </div>
         </div>
@@ -181,7 +181,7 @@ function Home() {
           </button>
         </form>
         <p className="caption">
-          Creates a saved workspace draft · No AI model connected
+          Creates a saved workspace draft · Run AI specialists in Operations
         </p>
         {create.error && <p role="alert">{create.error.message}</p>}
       </section></Reveal>
@@ -232,11 +232,11 @@ function Home() {
           <h2>Connected</h2>
           <div className="connection-row">
             <Monitor />
-            <span>Web portal</span>
+            <span>{isTauri() ? 'Windows companion' : 'Web portal'}</span>
             <small>Current session</small>
           </div>
           <p>
-            Native applications and browser tabs require the desktop companion.
+            {isTauri() ? 'Window discovery, saved layouts, and approved local actions are available.' : 'Open the Windows application for window discovery and approved local actions.'}
           </p>
         </div>
       </section>

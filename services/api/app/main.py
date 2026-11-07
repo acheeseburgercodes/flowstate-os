@@ -12,12 +12,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from app.agents import router as agent_router
 from app.database import Workspace, make_engine
 from app.proposals import router as proposal_router
 from app.schemas import SharedResource
 from app.switch_adapter import SwitchError
 from app.switch_service import SwitchService
-from app.agents import router as agent_router
 
 
 class WorkspaceInput(BaseModel):

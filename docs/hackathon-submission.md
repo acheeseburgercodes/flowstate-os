@@ -14,7 +14,17 @@ Switch routes the team conversation into FlowState through a dedicated relay. Th
 
 Mattermost and Discord belong in this single project submission. Both use Switch rooms. Mattermost connectivity is verified; the Discord adapter path is implemented, but the Discord bot bridge and live delivery remain unverified.
 
-## Demo flow to record
+## Current video and verified behavior
+
+The final product advertisement is `apps/web/test-results/product/FlowState-OS-product-film.mp4`: 1080p, 60 FPS, original upbeat instrumental music, no narration. It uses actual UI captures, acknowledged Switch connectivity, and a queue whose three real specialist jobs completed. The edit uses animated pans and transitions; it is not an uninterrupted end-to-end recording.
+
+Double-click `Launch FlowState.vbs` on the configured laptop. Startup waits for Docker, the Switch database, Mattermost, Switch Core, the API, and room coverage, with visible stages and logs. The desktop includes its own built UI. AI calls use the signed-in local Codex runtime and need internet access.
+
+The remaining gaps are live Discord bridge setup and the full multi-person Switch-to-native-action demonstration. Local Codex jobs are independent of Switch's controller; do not describe them as controller-managed agents.
+
+Final restart check: Windows Application Control blocked the rebuilt unsigned desktop executable. An earlier build opened with the API and Switch connected. The latest source builds; 19 API, 3 web, and 10 native tests pass (one native fixture test is ignored). Native submission readiness still depends on an approved signing/allowlisting path on this laptop. The video is a product overview, not proof that this machine-policy blocker is resolved.
+
+## Extended demo flow
 
 This is the intended walkthrough, not a claim that the complete live demo has passed. Record only steps you have actually completed, including a real agent response.
 
@@ -31,7 +41,7 @@ This is the intended walkthrough, not a claim that the complete live demo has pa
 - Windows 11, Docker Desktop with WSL 2, Node 22+, pnpm 11+, Python 3.12+, uv, Rust/MSVC, and WebView2.
 - Follow `docs/switch-setup.md`, then use the commands in the root README.
 - Verified locally on 2026-11-07 with Switch Core 0.31.0, Switch-managed Mattermost, 57 discovered operations, acknowledged room coverage, and no history gap.
-- Current automated evidence: production web build and 17 API tests pass. Earlier verification passed 3 frontend and 10 native tests. Native limitations are documented.
+- Current automated evidence: embedded desktop build and 19 API tests pass. Earlier verification passed 3 frontend and 10 native tests. Native limitations are documented.
 
 ## Three-minute demo script
 
