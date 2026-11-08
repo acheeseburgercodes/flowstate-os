@@ -22,7 +22,7 @@ Double-click `Launch FlowState.vbs` on the configured laptop. Startup waits for 
 
 The remaining gaps are live Discord bridge setup and the full multi-person Switch-to-native-action demonstration. Local Codex jobs are independent of Switch's controller; do not describe them as controller-managed agents.
 
-Final restart check: Windows Application Control blocked the rebuilt unsigned desktop executable. An earlier build opened with the API and Switch connected. The latest source builds; 19 API, 3 web, and 10 native tests pass (one native fixture test is ignored). Native submission readiness still depends on an approved signing/allowlisting path on this laptop. The video is a product overview, not proof that this machine-policy blocker is resolved.
+November 8 verification: the rebuilt desktop launches and opens Operations with API and Switch connected. No Windows security policy was changed. The latest source builds; 21 API and 3 web tests pass, and the previous native test run passed 10 tests with one fixture ignored. Sandbox is the default. Full access requires explicit per-run confirmation and retains its mode in job history. Three real sandbox tasks completed; a full-access task wrote and verified a designated test file. This is still an unsigned development build, not a signed installer.
 
 ## Extended demo flow
 
@@ -41,7 +41,7 @@ This is the intended walkthrough, not a claim that the complete live demo has pa
 - Windows 11, Docker Desktop with WSL 2, Node 22+, pnpm 11+, Python 3.12+, uv, Rust/MSVC, and WebView2.
 - Follow `docs/switch-setup.md`, then use the commands in the root README.
 - Verified locally on 2026-11-07 with Switch Core 0.31.0, Switch-managed Mattermost, 57 discovered operations, acknowledged room coverage, and no history gap.
-- Current automated evidence: embedded desktop build and 19 API tests pass. Earlier verification passed 3 frontend and 10 native tests. Native limitations are documented.
+- Current automated evidence: embedded desktop build, 21 API tests and 3 frontend tests pass. Earlier verification passed 10 native tests. Native limitations are documented.
 
 ## Three-minute demo script
 

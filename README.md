@@ -8,7 +8,7 @@ Built for the WeMakeDevs Flip the Switch hackathon with React, FastAPI, Tauri, a
 
 ## Open the application on the configured Windows laptop
 
-**Current machine blocker:** Windows Application Control rejected the latest unsigned desktop executable on November 7. The earlier embedded build reached a connected workspace, and the service startup is verified, but this rebuilt binary needs an approved signing/allowlisting path before native launch will work on this laptop. No security policy was disabled. The web UI and backend remain usable; native window controls require the desktop binary to be allowed.
+The November 8 build launches on the configured laptop and opens Operations with API and Switch connected. An earlier unsigned build was blocked by Windows Application Control; no Windows security policy was changed. This remains an unsigned development build, so other machines may require an approved signing or allowlisting path.
 
 Double-click **Launch FlowState.vbs** in this repository (or the FlowState OS desktop shortcut). The application opens immediately with an animated startup screen and logs. The launcher starts Docker Desktop, the existing Switch PostgreSQL database, Mattermost, Switch Core, and the FlowState API as needed, then waits for acknowledged room coverage. The desktop connects to its device token automatically and opens Operations. No development terminal or Vite server is needed.
 
@@ -22,6 +22,10 @@ pnpm --filter @flowstate/desktop exec tauri build --debug --no-bundle
 
 In **Operations**, add tasks with Research, Code, or Review skills. Auto-route assigns enabled specialists by skill and queue size. Click **Run assigned queue**, or select a task and **Run assigned agent**. Two read-only Codex jobs can run concurrently; queue rows show actual execution status, and selecting a task shows its answer. On November 7, all three tasks in a live queue completed successfully.
 
+Choose **Execution mode** before submitting. **Sandbox** is the default and uses Codex's read-only sandbox. **Full access** runs without that sandbox and can modify accessible files or run commands with your account's permissions. It requires a fresh confirmation for each task or queue submission; it does not grant administrator rights or disable Windows protections. Each job stores its original mode, including after a restart. November 8 verification completed three sandbox tasks and a full-access task that wrote and verified a designated test file.
+
+The updated product film is attached to the repository's demo release: 39 seconds, 1080p/60 FPS, original instrumental music, no narration. It shows real interface captures, connected Switch status, agent results, both themes, and the permission controls.
+
 ## What to look for in the demo
 
 The judging criteria are Switch usage (30%), technical execution (25%), creativity and impact (25%), and presentation (20%). Here is the evidence this project offers for each:
@@ -29,7 +33,7 @@ The judging criteria are Switch usage (30%), technical execution (25%), creativi
 | Criterion | What FlowState does | Evidence and limits |
 | --- | --- | --- |
 | Use of Switch | Receives team contributions through a dedicated relay and publishes approved results to the original room. | Live Mattermost room coverage was verified. Without Switch, this collaboration path stops; local workspace tools still work. |
-| Technical execution | React UI, FastAPI persistence, and a Tauri Windows companion with approval gates. | Embedded desktop build and 19 API tests pass. Automatic local startup and three live specialist jobs verified. Discord live setup remains pending. |
+| Technical execution | React UI, FastAPI persistence, and a Tauri Windows companion with approval gates. | Embedded desktop build and 21 API tests pass. Automatic startup and live sandbox/full-access jobs verified. Discord live setup remains pending. |
 | Creativity and impact | Takes a shared workspace plan from team chat to each person's locally approved setup, with saved window arrangements. | Intended to reduce repeated setup during shared coding or research sessions; no measured productivity claim. |
 | Presentation | Music-only product advertisement using actual connected UI and completed agent results. | 1080p/60 FPS animated film; the film is edited product footage, not an uninterrupted chat-to-desktop execution recording. |
 
@@ -56,7 +60,7 @@ Switch handles the rooms and routes messages between people and agents. The sepa
 
 ## Hackathon status
 
-The Operations page lets you create specialist profiles, assign tasks, auto-route by explicit skill and current queue size, and inspect assignment reasons. Assignments persist in this browser. After connecting in Settings, **Run assigned agent** submits an authenticated Codex job to the API host. Jobs persist in the database, run with a read-only sandbox and a 180-second timeout, and expose their actual answer or failure. Two jobs can run concurrently. A live task returned its expected answer on November 7. Marking an assignment reviewed remains a human planning action, separate from execution. This runner is not yet integrated with Switch's agent controller or deployed to a remote server.
+The Operations page lets you create specialist profiles, assign tasks, auto-route by explicit skill and current queue size, and inspect assignment reasons. Assignments persist in this browser. After connecting in Settings, **Run assigned agent** submits an authenticated Codex job to the API host. Jobs persist in the database, use the selected permission mode and a 180-second timeout, and expose their actual answer or failure. Two jobs can run concurrently. Marking an assignment reviewed remains a human planning action, separate from execution. This runner is not yet integrated with Switch's agent controller or deployed to a remote server.
 
 The interface includes TempVault-inspired warm dark and cream/violet light themes, an animated theme transition, task-entry animations, and scroll reveals. Reduced-motion preferences disable movement.
 
@@ -64,7 +68,7 @@ On November 7, the relay connected to Switch Core 0.31.0 and a real Mattermost r
 
 Mattermost and Discord can be used in the same build through separate Switch rooms. The inbox can filter by room, and plans publish results back to their own room. Mattermost is connected on the development machine. Discord support is implemented and covered by adapter tests, but its bot bridge has not been configured or tested live here.
 
-The embedded desktop build and 19 backend tests pass. Earlier checks also passed 3 frontend and 10 native tests; one optional launch test is excluded because Windows policy blocked its fixture. Full multi-person chat-to-desktop execution is not claimed as verified. See the [submission brief](docs/hackathon-submission.md), [demo runbook](docs/demo.md), and [Switch setup](docs/switch-setup.md).
+The embedded desktop build, 21 backend tests, and 3 frontend tests pass. The previous native run passed 10 tests; one optional launch fixture test was ignored. Full multi-person chat-to-desktop execution is not claimed as verified. See the [submission brief](docs/hackathon-submission.md), [demo runbook](docs/demo.md), and [Switch setup](docs/switch-setup.md).
 
 ## Run on Windows
 

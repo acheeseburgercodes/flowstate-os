@@ -1,10 +1,11 @@
-"""Explicit, authenticated read-only Codex jobs. No shell interpolation."""
+"""Authenticated Codex jobs with explicit per-run permissions."""
 
 import asyncio
 import json
 import os
 import shutil
 import subprocess
+from typing import Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -27,11 +28,20 @@ class AgentJob(Base):
 class JobInput(BaseModel):
     specialist: str = Field(min_length=1, max_length=80)
     prompt: str = Field(min_length=1, max_length=4000)
+    mode: Literal['sandbox', 'full-access'] = 'sandbox'
+    confirm_full_access: bool = False
+
+
+class AgentJobPermission(Base):
+    __tablename__ = 'agent_job_permissions'
+    job_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mode: Mapped[str] = mapped_column(String(32))
 
 
 def router(engine, authorize):
     routes = APIRouter(prefix="/api/v1/agents", dependencies=[Depends(authorize)])
     AgentJob.__table__.create(engine, checkfirst=True)
+    AgentJobPermission.__table__.create(engine, checkfirst=True)
     # A restart never silently repeats an agent invocation.
     with Session(engine) as db:
         for job in db.query(AgentJob).filter(
@@ -57,12 +67,15 @@ def router(engine, authorize):
                     "exec",
                     "--ignore-user-config",
                     "--sandbox",
-                    "read-only",
+                    "danger-full-access" if body.mode == 'full-access' else "read-only",
                     "--ephemeral",
                     "--json",
                     "-",
                 ]
-                prompt = f"You are the {body.specialist} specialist. Analyze and return a useful result. Do not change files or publish messages. Task: {body.prompt}"
+                boundary = ('Perform the requested task. File edits and commands are authorized for this task only. Do not publish messages or change system security settings unless explicitly requested in the task.'
+                            if body.mode == 'full-access' else
+                            'Analyze and return a useful result. Do not change files or publish messages.')
+                prompt = f"You are the {body.specialist} specialist. {boundary} Task: {body.prompt}"
                 result = await asyncio.to_thread(
                     subprocess.run,
                     command,
@@ -110,6 +123,8 @@ def router(engine, authorize):
 
     @routes.post("/jobs", status_code=202)
     async def create(body: JobInput):
+        if body.mode == 'full-access' and not body.confirm_full_access:
+            raise HTTPException(400, 'Confirm full access for this run before submitting')
         executable = shutil.which(os.getenv("FLOWSTATE_CODEX_BINARY", "codex"))
         if not executable:
             raise HTTPException(409, "Codex runtime is not installed on this API host")
@@ -117,6 +132,7 @@ def router(engine, authorize):
             raise HTTPException(429, "Agent queue is full")
         id = str(uuid4())
         with Session(engine) as db:
+            db.add(AgentJobPermission(job_id=id, mode=body.mode))
             db.add(
                 AgentJob(
                     id=id,
@@ -129,7 +145,7 @@ def router(engine, authorize):
         task = asyncio.create_task(run(id, body, executable))
         pending.add(task)
         task.add_done_callback(pending.discard)
-        return {"id": id, "status": "queued"}
+        return {"id": id, "status": "queued", "mode": body.mode}
 
     @routes.get("/jobs/{id}")
     def get(id: str):
@@ -137,6 +153,8 @@ def router(engine, authorize):
             job = db.get(AgentJob, id)
             if not job:
                 raise HTTPException(404, "Job not found")
-            return {"id": job.id, "status": job.status, "result": job.result}
+            permission = db.get(AgentJobPermission, id)
+            return {"id": job.id, "status": job.status, "result": job.result,
+                    "mode": permission.mode if permission else 'sandbox'}
 
     return routes

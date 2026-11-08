@@ -34,6 +34,26 @@ await shot('answer');
 await page.getByRole('button',{name:'Switch to light mode'}).click();
 await page.locator('main').evaluate(e=>e.scrollTo({top:0,behavior:'instant'}));
 await shot('light');
+await page.getByLabel('Execution mode').selectOption('full-access');
+if(await page.getByLabel('I authorize full access').isChecked())throw new Error('Full access must start unconfirmed');
+await shot('permissions');
+await page.getByLabel('Task description').fill('Write exactly FLOWSTATE_FULL_ACCESS_VERIFIED to D:/flipswitch/apps/web/test-results/product/agent-probe.txt. Do not modify any other file.');
+await page.getByLabel('Required skill').selectOption('Code');
+await page.getByRole('button',{name:'Add task',exact:true}).click();
+await page.getByLabel('I authorize full access').check();
+await page.getByRole('button',{name:'Run assigned agent',exact:true}).click();
+await page.waitForFunction(()=>JSON.parse(localStorage.getItem('flowstate-dispatch-v1')).tasks.at(-1).job,{},{timeout:30000});
+const fullJob=await page.evaluate(()=>JSON.parse(localStorage.getItem('flowstate-dispatch-v1')).tasks.at(-1).job);
+let fullResult;
+for(let i=0;i<100;i++){
+ fullResult=await page.evaluate(async id=>{const {request}=await import('/src/api.ts');return request(`/agents/jobs/${id}`)},fullJob);
+ if(['completed','failed','interrupted'].includes(fullResult.status))break;
+ await page.waitForTimeout(2000);
+}
+if(fullResult.status!=='completed'||fullResult.mode!=='full-access')throw new Error('Full access job did not complete');
+if((await readFile(`${out}/agent-probe.txt`,'utf8')).trim()!=='FLOWSTATE_FULL_ACCESS_VERIFIED')throw new Error('Full access write verification failed');
+if(await page.getByLabel('I authorize full access').isChecked())throw new Error('Confirmation must reset after submission');
+await page.getByLabel('Execution mode').selectOption('sandbox');
 await page.locator('nav a[href="/collaboration"]').click();
 await page.getByText('connected',{exact:true}).waitFor({timeout:15000});
 await shot('switch');

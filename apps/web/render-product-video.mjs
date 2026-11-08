@@ -9,7 +9,7 @@ const scenes=[
  ['02 / DELEGATE','Three skills.<br>One queue.','Match by skill. Balance the queue.<br>See why each task was assigned.','dispatch'],
  ['03 / EXECUTE','Real agents.<br>Real answers.','Three live tasks completed.<br>Two concurrent, read-only Codex workers.','answer'],
  ['04 / MAKE IT YOURS','Change the mood.<br>Keep your flow.','Warm dark. Cream and violet light.<br>Responsive layouts and reduced-motion support.','light'],
- ['FLOWSTATE OS','Your laptop.<br>Your workspace.','One launcher starts the local stack.<br>Health checks and startup logs included.','overview'],
+ ['05 / YOUR CONTROL','Choose how<br>agents work.','Sandbox by default.<br>Full access with explicit confirmation.<br>Permissions recorded per job.','permissions'],
 ];
 const browser=await chromium.launch();
 const page=await browser.newPage({viewport:{width:1920,height:1080},deviceScaleFactor:1});
