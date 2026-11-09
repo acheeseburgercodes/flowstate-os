@@ -6,6 +6,8 @@ It takes contributions from a Switch room and lets you assemble a workspace plan
 
 Built for the WeMakeDevs Flip the Switch hackathon with React, FastAPI, Tauri, and Switch.
 
+The new animated product ad and interactive preview are described in [the motion demo guide](docs/motion-ad.md). With the web server running, open `http://127.0.0.1:5173/ad-preview.html` to watch, scrub, enable music, or switch to the actual live application.
+
 ## Open the application on the configured Windows laptop
 
 The November 8 build launches on the configured laptop and opens Operations with API and Switch connected. An earlier unsigned build was blocked by Windows Application Control; no Windows security policy was changed. This remains an unsigned development build, so other machines may require an approved signing or allowlisting path.

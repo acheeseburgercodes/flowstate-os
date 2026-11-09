@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>FlowState — Motion studio</title><style>
+*{box-sizing:border-box}body{margin:0;background:#08090c;color:#eee9f4;font:14px 'Segoe UI',sans-serif}header{height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #30283d}header b{font-size:18px}button,a{background:#25202e;border:1px solid #534369;color:#f3eaff;border-radius:8px;padding:9px 16px;cursor:pointer;text-decoration:none}button:hover,a:hover{background:#403151}canvas{display:block;width:min(100%,1600px);height:auto;margin:12px auto}footer{display:flex;gap:16px;align-items:center;padding:12px 28px}input{flex:1;accent-color:#b6ff6b}small{color:#aaa}iframe{display:none;width:100%;height:calc(100vh - 64px);border:0}body.live iframe{display:block}body.live #studio{display:none}</style>
+<header><b>FlowState OS <small>/ Motion studio</small></b><div><button id="showAd">Advertisement</button> <button id="showApp">Live application</button> <a href="/operations" target="_blank">Open app ↗</a></div></header>
+<div id="studio"><canvas id="film" width="1920" height="1080"></canvas><footer><button id="play">Pause</button><input id="seek" type="range" min="0" max="36" step="0.01" value="0"><span id="time">00:00 / 00:36</span><button id="music">Music off</button></footer></div><iframe title="Live FlowState application" src="/operations"></iframe>
+<script type="module">
+const canvas=document.querySelector('canvas'),c=canvas.getContext('2d'),W=1920,H=1080;
+const names=['dispatch','answer','switch','light','permissions'];
+const pictures=Object.fromEntries(await Promise.all(names.map(async name=>{const image=new Image();image.src=`/test-results/product/${name}.png`;await image.decode();return [name,image]})));
+const clip=document.createElement('video');clip.src='/test-results/product/live-ui.webm';clip.muted=true;clip.preload='auto';await new Promise((resolve,reject)=>{clip.onloadeddata=resolve;clip.onerror=reject});
+const audio=new Audio('/test-results/product/original-instrumental.wav');audio.loop=true;
+const clamp=x=>Math.max(0,Math.min(1,x)),ease=x=>1-Math.pow(1-clamp(x),4);
+function text(s,x,y,size=50,color='#f5f1ec',weight=600){c.fillStyle=color;c.font=`${weight} ${size}px "Segoe UI",sans-serif`;c.fillText(s,x,y)}
+function round(x,y,w,h,r=20,fill='#17141f'){c.fillStyle=fill;c.beginPath();c.roundRect(x,y,w,h,r);c.fill()}
+function panel(img,x,y,w,h,rotation=0,alpha=1){c.save();c.globalAlpha=alpha;c.translate(x+w/2,y+h/2);c.rotate(rotation);c.shadowColor='#0009';c.shadowBlur=50;c.shadowOffsetY=28;round(-w/2,-h/2,w,h,20,'#19151f');c.shadowBlur=0;c.shadowOffsetY=0;c.beginPath();c.roundRect(-w/2,-h/2,w,h,20);c.clip();c.drawImage(img,-w/2,-h/2,w,h);c.restore()}
+function headline(lines,t,x=100,y=300,size=128){lines.forEach((line,i)=>{const a=ease((t-i*.13)/.75);c.save();c.globalAlpha=a;c.translate((1-a)*-110,(1-a)*60);text(line,x,y+i*(size*1.04),size,i===lines.length-1?'#b7ff6e':'#f6f0fa',700);c.restore()})}
+function background(t){c.fillStyle='#0b0910';c.fillRect(0,0,W,H);const g=c.createRadialGradient(1250+Math.sin(t*.4)*280,350,0,1200,400,1150);g.addColorStop(0,'#593c8060');g.addColorStop(1,'#0b091000');c.fillStyle=g;c.fillRect(0,0,W,H);c.strokeStyle='#c8afff12';c.lineWidth=1;for(let i=-1;i<13;i++){const x=i*180+(t*22)%180;c.beginPath();c.moveTo(x,0);c.lineTo(x-400,H);c.stroke()}for(let i=0;i<36;i++){const x=(i*277+t*(18+i%5*8))%W,y=(i*163)%H;c.fillStyle=i%4?'#bb95ff45':'#b7ff6e';c.fillRect(x,y,3+i%3,3+i%3)}}
+function chrome(t,label){text('FLOWSTATE OS',80,70,25,'#f6f0fa',650);text(label,1430,70,22,'#b9a6cf',400);round(80,1014,1760,3,2,'#3a3045');round(80,1014,1760*clamp(t/36),3,2,'#b7ff6e');text('BUILT WITH SWITCH',80,1060,18,'#a997bc',500)}
+window.renderFrame=async function(t,exact=false){
+ const index=Math.min(5,Math.floor(t/6)),s=t-index*6,entry=ease(s/.8);
+ if(index===1){const target=Math.min(clip.duration-.1,s*1.8);if(exact&&Math.abs(clip.currentTime-target)>.018){await new Promise(resolve=>{clip.onseeked=resolve;clip.currentTime=target})}else if(!exact&&Math.abs(clip.currentTime-target)>.15)clip.currentTime=target;}
+ background(t);c.save();
+ if(index===0){
+  c.save();c.globalAlpha=.28*entry;c.translate(1170,535);c.rotate(-.13+.025*Math.sin(t));c.scale(.8+entry*.2,.8+entry*.2);panel(pictures.dispatch,-530,-332,1060,664);c.restore();
+  headline(['LESS CHAOS.','MORE FLOW.'],s,100,390,155);
+  const a=ease((s-1)/.8);c.globalAlpha=a;text('Your team. Your agents. One command surface.',108,755,34,'#c3b4d1',400);
+  round(108,820,390,72,36,'#b7ff6e');text('Meet FlowState OS  ↗',137,867,29,'#18210c',650);
+ }else if(index===1){
+  headline(['FROM INTENT','TO MOMENTUM.'],s,85,210,85);
+  panel(clip,420+(1-entry)*1000,310,1392,870,-.018*(1-entry));
+  ['Type it.','Route it.','Own it.'].forEach((v,i)=>{const a=ease((s-.6-i*.45)/.7);c.globalAlpha=a;text(v,100,500+i*110,55,i===1?'#b7ff6e':'#f6f0fa',600)});c.globalAlpha=1;
+ }else if(index===2){
+  headline(['ONE QUEUE.','THE RIGHT SPECIALIST.'],s,90,220,82);
+  const labels=['RESEARCH','BUILD','REVIEW'];for(let i=0;i<3;i++){let a=ease((s-.3-i*.22)/.8),x=130+i*570,y=425+(1-a)*350+Math.sin(s*1.5+i)*10;c.globalAlpha=a;round(x,y,520,300,24,'#21192e');text('0'+(i+1),x+34,y+65,34,'#b794ee');text(labels[i],x+34,y+145,46);text(['Context → clarity','Intent → implementation','Changes → confidence'][i],x+34,y+207,24,'#c3b2d5',400);round(x+34,y+244,170,33,16,'#b7ff6e');text('AUTO-ROUTED',x+50,y+267,16,'#18210c')};c.globalAlpha=1;
+  text('Skill matching  /  Queue balancing  /  Visible decisions',160,860,35,'#c3b4d1',400);
+ }else if(index===3){
+  headline(['REAL WORK.','VISIBLE RESULTS.'],s,90,230,84);
+  panel(pictures.answer,580+(1-entry)*1300,320,1250,781,-.012);
+  text('2',100,560,200,'#b7ff6e',700);text('concurrent workers',108,630,32,'#cabbd7',400);
+  text('3',100,810,150,'#f6f0fa',700);text('sandbox tasks verified',108,870,30,'#cabbd7',400);
+ }else if(index===4){
+  const reveal=ease((s-1.2)/1.7);panel(pictures.dispatch,140,210,1640,1025,0);c.save();c.beginPath();c.arc(1530,240,reveal*2100,0,Math.PI*2);c.clip();panel(pictures.light,140,210,1640,1025,0);c.restore();
+  round(90,100,1070,125,16,'#0b0910ee');text('DARK. LIGHT. YOUR ENERGY.',124,182,61,'#b7ff6e');
+ }else{
+  panel(pictures.permissions,900+(1-entry)*900,230,900,563,.04*(1-entry));
+  headline(['YOUR AGENTS.','YOUR RULES.'],s,90,330,96);
+  text('Sandbox by default.',100,600,34,'#cabbd7',400);text('Full access when you confirm.',100,656,34,'#cabbd7',400);
+  const a=ease((s-2)/.7);c.globalAlpha=a;round(100,780,670,100,50,'#b7ff6e');text('FLOWSTATE OS  ↗',145,849,49,'#18210c',750);text('github.com/acheeseburgercodes/flowstate-os',105,948,26,'#c7b4d8',400);c.globalAlpha=1;
+ }
+ c.restore();chrome(t,['WORK IN FLOW','ACTUAL UI WALKTHROUGH','EXPLAINABLE ROUTING','ACTUAL AGENT RESULTS','MAKE IT YOURS','PERMISSIONS PER RUN'][index]);
+ // A short violet wipe ties the cuts together without strobing.
+ if(s<.3&&index>0){const k=1-ease(s/.3);c.fillStyle='#b996f2';c.fillRect(W*(1-k),0,W*k,H)}
+};
+let playing=true,position=0,previous=performance.now(),busy=false;
+window.adReady=true;
+const seek=document.querySelector('#seek'),clock=document.querySelector('#time');
+window.pauseAd=()=>{playing=false;document.querySelector('#play').textContent='Play';audio.pause()};
+document.querySelector('#play').onclick=()=>{playing=!playing;document.querySelector('#play').textContent=playing?'Pause':'Play';if(!playing)audio.pause()};
+seek.oninput=()=>{position=Number(seek.value);audio.currentTime=position%audio.duration;void window.renderFrame(position)};
+document.querySelector('#music').onclick=async e=>{if(audio.paused){audio.currentTime=position;await audio.play();e.target.textContent='Music on'}else{audio.pause();e.target.textContent='Music off'}};
+document.querySelector('#showApp').onclick=()=>{document.body.classList.add('live');window.pauseAd()};
+document.querySelector('#showAd').onclick=()=>document.body.classList.remove('live');
+async function tick(now){const dt=(now-previous)/1000;previous=now;if(playing&&!busy){position=(position+dt)%36;await window.renderFrame(position);seek.value=position;clock.textContent=`00:${String(Math.floor(position)).padStart(2,'0')} / 00:36`;}requestAnimationFrame(tick)}
+requestAnimationFrame(tick);await window.renderFrame(0);
+</script></html>

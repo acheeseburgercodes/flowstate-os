@@ -1,0 +1,10 @@
+import { readFile, writeFile } from 'node:fs/promises';
+let html=await readFile('ad-preview.html','utf8');
+const embedded={};
+for(const name of ['dispatch','answer','switch','light','permissions'])embedded[name]='data:image/png;base64,'+(await readFile(`test-results/product/${name}.png`)).toString('base64');
+html=html.replace("const names=['dispatch','answer','switch','light','permissions'];",`const embedded=${JSON.stringify(embedded)};const names=Object.keys(embedded);`);
+html=html.replace('image.src=`/test-results/product/${name}.png`','image.src=embedded[name]');
+for(const [file,mime] of [['live-ui.webm','video/webm'],['original-instrumental.wav','audio/wav']])html=html.replace(`/test-results/product/${file}`,`data:${mime};base64,${(await readFile(`test-results/product/${file}`)).toString('base64')}`);
+html=html.replaceAll('"/operations"','"http://127.0.0.1:5173/operations"');
+await writeFile('test-results/product/FlowState-interactive-preview.html',html);
+console.log('Packaged self-contained ad preview. Live app requires the local FlowState server.');
