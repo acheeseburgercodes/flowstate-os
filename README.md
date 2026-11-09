@@ -26,7 +26,7 @@ In **Operations**, add tasks with Research, Code, or Review skills. Auto-route a
 
 Choose **Execution mode** before submitting. **Sandbox** is the default and uses Codex's read-only sandbox. **Full access** runs without that sandbox and can modify accessible files or run commands with your account's permissions. It requires a fresh confirmation for each task or queue submission; it does not grant administrator rights or disable Windows protections. Each job stores its original mode, including after a restart. November 8 verification completed three sandbox tasks and a full-access task that wrote and verified a designated test file.
 
-The updated product film is attached to the repository's demo release: 39 seconds, 1080p/60 FPS, original instrumental music, no narration. It shows real interface captures, connected Switch status, agent results, both themes, and the permission controls.
+The latest [product film and interactive preview](https://github.com/acheeseburgercodes/flowstate-os/releases/tag/v0.3.0-motion-ad) run for 36 seconds at 1080p/60 FPS with original instrumental music and no narration. The edit includes kinetic text, moving UI panels, animated specialist cards, a dark/light reveal, real task-entry footage, and permission controls.
 
 ## What to look for in the demo
 

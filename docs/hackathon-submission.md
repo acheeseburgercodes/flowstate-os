@@ -16,7 +16,7 @@ Mattermost and Discord belong in this single project submission. Both use Switch
 
 ## Current video and verified behavior
 
-The final product advertisement is `apps/web/test-results/product/FlowState-OS-product-film.mp4`: 1080p, 60 FPS, original upbeat instrumental music, no narration. It uses actual UI captures, acknowledged Switch connectivity, and a queue whose three real specialist jobs completed. The edit uses animated pans and transitions; it is not an uninterrupted end-to-end recording.
+The latest product advertisement is [available in the motion release](https://github.com/acheeseburgercodes/flowstate-os/releases/tag/v0.3.0-motion-ad), with a self-contained interactive preview. The local file is `apps/web/test-results/product/FlowState-OS-motion-ad.mp4`: 36 seconds, 1080p, 60 FPS, original instrumental music, no narration. It combines actual interface captures and browser interactions with animated text, cards, panels, and a theme reveal. It is an edited advertisement, not an uninterrupted end-to-end recording.
 
 Double-click `Launch FlowState.vbs` on the configured laptop. Startup waits for Docker, the Switch database, Mattermost, Switch Core, the API, and room coverage, with visible stages and logs. The desktop includes its own built UI. AI calls use the signed-in local Codex runtime and need internet access.
 
